@@ -27,48 +27,54 @@ export default function Game() {
         .map(({ value }) => value));
 
 
-    return <div className="h-screen">
-        <div className="w-full aspect-square grid grid-cols-4 gap-1 p-4">
-            {board.map((val, i) => {
-                return <div key={i} className={`h-full w-full bg-gray-500 aspect-square`}>
-                    {i}, {val.number}, {val.isCollapsed + ""}
-                    {player1.position === i && <div className="w-1/2 aspect-square bg-red-700 mx-auto"></div>}
-                    {player2.position === i && <div className="w-1/2 aspect-square bg-blue-700 mx-auto"></div>}
-                </div>;
-            })}
+    return <div className="h-screen flex portrait:flex-col">
+        <div className="">
+            <div className="aspect-square grid grid-cols-4 gap-1 p-4 landscape:h-screen portrait:w-screen m-auto">
+                {board.map((val, i) => {
+                    return <div key={i} className={` bg-gray-500 aspect-square`}>
+                        {i}, {val.number}, {val.isCollapsed + ""}
+                        {player1.position === i && <div className="w-1/2 aspect-square bg-red-700 mx-auto"></div>}
+                        {player2.position === i && <div className="w-1/2 aspect-square bg-blue-700 mx-auto"></div>}
+                    </div>;
+                })}
+            </div>
         </div>
-        <div className="grid grid-cols-3 gap-2 mx-auto w-1/2">
-            <div></div>
-            <div className="h-20 bg-emerald-700" onClick={() => {
-                setPlayer1({
-                    ...player1,
-                    position: player1.position - 4 < 0 ? player1.position + 12 : player1.position - 4
-                });
-            }}>up</div>
-            <div></div>
-            <div className="h-20 bg-emerald-700" onClick={() => {
-                setPlayer1({
-                    ...player1,
-                    position: player1.position % 4 === 0 ? player1.position + 3 : player1.position - 1
-                });
-            }}>left</div>
-            <div className="h-20 bg-emerald-700">reset</div>
-            <div className="h-20 bg-emerald-700" onClick={() => {
-                setPlayer1({
-                    ...player1,
-                    position: (player1.position - 3) % 4 === 0 ? player1.position - 3 : player1.position + 1
-                });
-            }}>right</div>
-            <div></div>
-            <div className="h-20 bg-emerald-700" onClick={() => {
-                setPlayer1({
-                    ...player1,
-                    position: player1.position + 4 > 15 ? player1.position - 12 : player1.position + 4
-                });
-            }}
-            >down</div>
-            <div></div>
+        <div className="landscape:w-1/2">
+            <div className="landscape:h-screen portrait:w-screen flex">
+                <div className="grid grid-cols-3 gap-2 m-auto aspect-square h-60">
+                    <div></div>
+                    <div className="h-20 bg-emerald-700" onClick={() => {
+                        setPlayer1({
+                            ...player1,
+                            position: player1.position - 4 < 0 ? player1.position + 12 : player1.position - 4
+                        });
+                    }}>up</div>
+                    <div></div>
+                    <div className="h-20 bg-emerald-700" onClick={() => {
+                        setPlayer1({
+                            ...player1,
+                            position: player1.position % 4 === 0 ? player1.position + 3 : player1.position - 1
+                        });
+                    }}>left</div>
+                    <div className="h-20 bg-emerald-700">reset</div>
+                    <div className="h-20 bg-emerald-700" onClick={() => {
+                        setPlayer1({
+                            ...player1,
+                            position: (player1.position - 3) % 4 === 0 ? player1.position - 3 : player1.position + 1
+                        });
+                    }}>right</div>
+                    <div></div>
+                    <div className="h-20 bg-emerald-700" onClick={() => {
+                        setPlayer1({
+                            ...player1,
+                            position: player1.position + 4 > 15 ? player1.position - 12 : player1.position + 4
+                        });
+                    }}
+                    >down</div>
+                    <div></div>
 
+                </div>
+            </div>
         </div>
     </div>;
 
