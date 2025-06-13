@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 interface CardState {
-    number: 0 | 1 | 2 | 3 | 4;
+    number: -2 | -1 | 1 | 2 | 3 | 4;
     isCollapsed: boolean;
 }
 
@@ -21,11 +21,26 @@ export default function Game() {
     const [player2, setPlayer2] = useState<PlayerState>(
         { position: 7, state: "default" }
     );
-    const [board, _] = useState(sample
-        .map(value => ({ value, sort: Math.random() }))
-        .sort((a, b) => a.sort - b.sort)
-        .map(({ value }) => value));
+    const [board, setBoard] = useState<CardState[]>([]);
 
+    useEffect(() => {
+        if (board.length === 0) {
+            const tempBoard = sample
+                .map(value => ({ value, sort: Math.random() }))
+                .sort((a, b) => a.sort - b.sort)
+                .map(({ value }) => value);
+            setBoard(tempBoard);
+            setPlayer1({
+                position: tempBoard.findIndex(obj => obj.number === -1),
+                state: "default"
+            });
+            setPlayer2({
+                position: tempBoard.findIndex(obj => obj.number === -2),
+                state: "default"
+
+            });
+        }
+    }, []);
 
     return <div className="h-screen flex portrait:flex-col">
         <div className="">
@@ -83,7 +98,8 @@ export default function Game() {
 
 
 const sample: CardState[] = [
-    { number: 0, isCollapsed: false },
+    { number: -1, isCollapsed: false }, //player 1 start
+    { number: -2, isCollapsed: false }, //player 2 start
 
     { number: 1, isCollapsed: false },
     { number: 1, isCollapsed: false },
@@ -103,6 +119,4 @@ const sample: CardState[] = [
 
     { number: 4, isCollapsed: false },
     { number: 4, isCollapsed: false },
-
-    { number: 0, isCollapsed: false },
 ];
