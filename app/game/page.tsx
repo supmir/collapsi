@@ -158,7 +158,7 @@ function PlayerPiece(props: PlayerPieceProps) {
     >
         <div className={`m-auto p-1 sm:p-2 xl:p-4 rounded-full ${className} w-3/4 h-3/4`}
             style={{
-                animation: isTurn ? "breathe 0.4s ease-in-out infinite" : "",
+                animation: ((isTurn && playerState.state !== "loser") || playerState.state === "winner") ? "breathe 0.4s ease-in-out infinite" : "",
             }}>
             {playerState.state === "winner" &&
                 <Crown className="h-full w-full" />
@@ -173,5 +173,5 @@ function PlayerPiece(props: PlayerPieceProps) {
                 </div>
             }
         </div>
-    </motion.div>;
+    </motion.div >;
 }
