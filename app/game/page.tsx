@@ -124,25 +124,26 @@ function PlayerPiece(props: PlayerPieceProps) {
 
     return <motion.div
         className={`w-2/3 aspect-square m-auto flex`}
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0 }}
+        // initial={{ opacity: 0, scale: 0 }}
+        // animate={{ opacity: 1, scale: 1 }}
+        // exit={{ opacity: 0, scale: 0 }}
 
-        transition={{
-            duration: 0.4,
-            scale: { type: "spring", visualDuration: 0.4, bounce: 0.5 },
-        }}
+        // transition={{
+        //     duration: 0.4,
+        //     scale: { type: "spring", visualDuration: 0.4, bounce: 0.5 },
+        // }}
 
-    // key={"player" + className}
-    // layout
-    // transition={
-    //     {
-    //         type: "spring",
-    //         damping: 20,
-    //         stiffness: 300,
-    //     }
+        key={"player" + className}
+        layout
+        layoutId={"player" + className}
+        transition={
+            {
+                type: "spring",
+                damping: 20,
+                stiffness: 300,
+            }
 
-    // }
+        }
     >
         <div className={`m-auto p-1 sm:p-2 xl:p-4 rounded-full ${className} w-3/4 h-3/4`}>
             {player.state === "winner" &&
