@@ -98,12 +98,7 @@ interface PlayerPieceProps {
 function PlayerPiece(props: PlayerPieceProps) {
     const { playerState: player, className } = props;
 
-    return <div className={`w-2/3 aspect-square m-auto flex relative`}>
-        {(player.state === "winner" || player.state === "loser") && <span className="rounded-full bg-black h-1/3 w-1/3 absolute flex">
-            <div className="m-auto leading-0 font-black text-xl">
-                {player.steps}
-            </div>
-        </span>}
+    return <div className={`w-2/3 aspect-square m-auto flex`}>
         <div className={`m-auto p-1 sm:p-2 xl:p-4 rounded-full ${className} w-3/4 h-3/4`}>
             {player.state === "winner" &&
                 <Crown className="h-full w-full" />
