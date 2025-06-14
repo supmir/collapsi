@@ -18,8 +18,12 @@ export default function Game() {
         <div className="landscape:w-2/3 portrait:h-2/3 max-h-screen max-w-screen object-center">
             <div className="aspect-square grid grid-cols-4 gap-1 p-4 m-auto max-h-full max-w-full">
                 {gameState && gameState.board.map((val, i) => {
-                    return <div key={i} className={` bg-gray-500 aspect-square flex`}>
-                        <div className="absolute">
+                    return <div key={i} className={`aspect-square flex
+                         ${val.type === "collapsed" && "bg-gray-900"}
+                     ${val.type === "path" && "bg-gray-700"}
+                     ${val.type === "default" && "bg-gray-500"}`
+                    }>
+                        <div className="p-2 absolute">
                             {(val.type === "default" || val.type === "path") && val.number}
 
                         </div>
