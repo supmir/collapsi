@@ -161,11 +161,10 @@ export default function Game() {
                         });
                     });
                     setRoomId(roomIdRef.current.value);
-                    const initialGameState = initialiseGameState();
-                    setGameState(initialGameState);
-
-                    console.log("join room", gameState);
                     gameDataChannel.onopen = () => {
+                        const initialGameState = initialiseGameState();
+                        setGameState(initialGameState);
+                        console.log("join room", gameState);
                         gameDataChannel.send(
                             JSON.stringify(initialGameState)
                         );
@@ -238,6 +237,7 @@ export default function Game() {
         <div className="landscape:w-1/3 portrait:h-1/3 max-h-screen max-w-screen">
             <div className="landscape:h-full portrait:w-full flex flex-col">
                 <div className="mx-auto">Room ID: {roomId}</div>
+                <div className="mx-auto">Connection State: {pcRef.current?.connectionState}</div>
                 {gameState && gameState.turn === playerNumber &&
                     <div className="grid grid-cols-3 gap-2 m-auto h-60 w-60">
                         {/* ROW 1 */}
