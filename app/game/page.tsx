@@ -62,8 +62,8 @@ export default function Game() {
                                     className="w-1/2 aspect-square bg-gray-700 m-auto rounded-full flex items-center justify-center"
                                 >
                                 </motion.div>}
-                            {gameState.player1.displayedPosition === i && <PlayerPiece playerState={gameState.player1} className="bg-red-700 -z-10" />}
-                            {gameState.player2.displayedPosition === i && <PlayerPiece playerState={gameState.player2} className="bg-blue-700 -z-10" />}
+                            {gameState.player1.displayedPosition === i && <PlayerPiece playerState={gameState.player1} isTurn={gameState.turn === 1} className="bg-red-700 -z-10" />}
+                            {gameState.player2.displayedPosition === i && <PlayerPiece playerState={gameState.player2} isTurn={gameState.turn === 2} className="bg-blue-700 -z-10" />}
                         </AnimatePresence>
                     </div>;
                 })}
@@ -126,10 +126,12 @@ export default function Game() {
 }
 
 interface PlayerPieceProps {
-    playerState: PlayerState, className: string;
+    playerState: PlayerState;
+    isTurn: boolean;
+    className: string;
 }
 function PlayerPiece(props: PlayerPieceProps) {
-    const { playerState: player, className } = props;
+    const { playerState, className, isTurn } = props;
 
     return <motion.div
         className={`w-2/3 aspect-square m-auto flex`}
@@ -154,17 +156,20 @@ function PlayerPiece(props: PlayerPieceProps) {
 
         }
     >
-        <div className={`m-auto p-1 sm:p-2 xl:p-4 rounded-full ${className} w-3/4 h-3/4`}>
-            {player.state === "winner" &&
+        <div className={`m-auto p-1 sm:p-2 xl:p-4 rounded-full ${className} w-3/4 h-3/4`}
+            style={{
+                animation: isTurn ? "breathe 0.4s ease-in-out infinite" : "",
+            }}>
+            {playerState.state === "winner" &&
                 <Crown className="h-full w-full" />
             }
-            {player.state === "loser" &&
+            {playerState.state === "loser" &&
                 <Skull className="h-full w-full" />
             }
             {
-                (player.state === "default" || player.state === "start") &&
+                (playerState.state === "default" || playerState.state === "start") &&
                 <div className="h-full w-full flex">
-                    <span className="font-black text-2xl m-auto">{player.steps}</span>
+                    <span className="font-black text-2xl m-auto">{playerState.steps}</span>
                 </div>
             }
         </div>
