@@ -1,122 +1,82 @@
 "use client";
+import { GameState, initialiseGameState, updateBoard } from "@/utils/engine";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 
 
-interface CardState {
-    number: -2 | -1 | 1 | 2 | 3 | 4;
-    isCollapsed: boolean;
-}
-
-interface PlayerState {
-    state: "default" | "winner" | "loser";
-    position: number;
-}
-
 
 export default function Game() {
-
-    const [player1, setPlayer1] = useState<PlayerState>(
-        { position: 9, state: "default" }
-    );
-    const [player2, setPlayer2] = useState<PlayerState>(
-        { position: 7, state: "default" }
-    );
-    const [board, setBoard] = useState<CardState[]>([]);
+    const [gameState, setGameState] = useState<GameState>();
 
     useEffect(() => {
-        if (board.length === 0) {
-            const tempBoard = sample
-                .map(value => ({ value, sort: Math.random() }))
-                .sort((a, b) => a.sort - b.sort)
-                .map(({ value }) => value);
-            setBoard(tempBoard);
-            setPlayer1({
-                position: tempBoard.findIndex(obj => obj.number === -1),
-                state: "default"
-            });
-            setPlayer2({
-                position: tempBoard.findIndex(obj => obj.number === -2),
-                state: "default"
-
-            });
+        if (gameState === undefined) {
+            setGameState(initialiseGameState());
         }
     }, []);
 
-    return <div className="h-screen flex portrait:flex-col">
-        <div className="">
-            <div className="aspect-square grid grid-cols-4 gap-1 p-4 landscape:h-screen portrait:w-screen m-auto">
-                {board.map((val, i) => {
-                    return <div key={i} className={` bg-gray-500 aspect-square`}>
-                        {i}, {val.number}, {val.isCollapsed + ""}
-                        {player1.position === i && <div className="w-1/2 aspect-square bg-red-700 mx-auto"></div>}
-                        {player2.position === i && <div className="w-1/2 aspect-square bg-blue-700 mx-auto"></div>}
+    return <div className="h-screen w-screen flex portrait:flex-col">
+        <div className="landscape:w-2/3 portrait:h-2/3 max-h-screen max-w-screen object-center">
+            <div className="aspect-square grid grid-cols-4 gap-1 p-4 m-auto max-h-full max-w-full">
+                {gameState && gameState.board.map((val, i) => {
+                    return <div key={i} className={` bg-gray-500 aspect-square flex`}>
+                        <div className="absolute">
+                            {(val.type === "default" || val.type === "path") && val.number}
+
+                        </div>
+                        {gameState.player1.displayedPosition === i && <div className="w-1/2 aspect-square bg-red-700 m-auto rounded-full flex items-center justify-center">
+                            {gameState.player1.steps}
+                        </div>}
+                        {gameState.player2.displayedPosition === i && <div className="w-1/2 aspect-square bg-blue-700 m-auto rounded-full flex items-center justify-center">
+                            {gameState.player2.steps}
+                        </div>}
                     </div>;
                 })}
             </div>
         </div>
-        <div className="landscape:w-1/2">
-            <div className="landscape:h-screen portrait:w-screen flex">
-                <div className="grid grid-cols-3 gap-2 m-auto aspect-square h-60">
-                    <div></div>
-                    <div className="h-20 bg-emerald-700" onClick={() => {
-                        setPlayer1({
-                            ...player1,
-                            position: player1.position - 4 < 0 ? player1.position + 12 : player1.position - 4
-                        });
-                    }}>up</div>
-                    <div></div>
-                    <div className="h-20 bg-emerald-700" onClick={() => {
-                        setPlayer1({
-                            ...player1,
-                            position: player1.position % 4 === 0 ? player1.position + 3 : player1.position - 1
-                        });
-                    }}>left</div>
-                    <div className="h-20 bg-emerald-700">reset</div>
-                    <div className="h-20 bg-emerald-700" onClick={() => {
-                        setPlayer1({
-                            ...player1,
-                            position: (player1.position - 3) % 4 === 0 ? player1.position - 3 : player1.position + 1
-                        });
-                    }}>right</div>
-                    <div></div>
-                    <div className="h-20 bg-emerald-700" onClick={() => {
-                        setPlayer1({
-                            ...player1,
-                            position: player1.position + 4 > 15 ? player1.position - 12 : player1.position + 4
-                        });
-                    }}
-                    >down</div>
-                    <div></div>
+        <div className="landscape:w-1/3 portrait:h-1/3 max-h-screen max-w-screen">
+            <div className="landscape:h-full portrait:w-full flex">
+                {gameState &&
+                    <div className="grid grid-cols-3 gap-2 m-auto h-60 w-60">
+                        <div>
+                            {/* Red&apos;s turn<br />
+                        Moves:<br />
+                        1 */}
+                        </div>
+                        <div className=" bg-gray-700" onClick={() => {
+                            setGameState(updateBoard(gameState, "up"));
+                        }}><ArrowUp className="h-full w-full" /></div>
+                        <div></div>
+                        <div className=" bg-gray-700" onClick={() => {
+                            setGameState(updateBoard(gameState, "left"));
 
-                </div>
+                        }}><ArrowLeft className="h-full w-full" /></div>
+
+                        <div className=" bg-gray-700" onClick={() => {
+                            setGameState(updateBoard(gameState, "down"));
+
+                        }}
+                        ><ArrowDown className="h-full w-full" /></div>
+
+                        <div className=" bg-gray-700" onClick={() => {
+                            setGameState(updateBoard(gameState, "right"));
+
+                        }}><ArrowRight className="h-full w-full" /></div>
+
+                        <div className="bg-red-700" onClick={() => {
+                            setGameState(updateBoard(gameState, "reset"));
+
+                        }}><RotateCcw className="h-full w-full" /></div>
+                        <div></div>
+                        <div className="bg-green-700" onClick={() => {
+                            setGameState(updateBoard(gameState, "confirm"));
+
+                        }}><Check className="h-full w-full" /></div>
+
+
+                    </div>}
             </div>
         </div>
     </div>;
 
 }
 
-
-
-const sample: CardState[] = [
-    { number: -1, isCollapsed: false }, //player 1 start
-    { number: -2, isCollapsed: false }, //player 2 start
-
-    { number: 1, isCollapsed: false },
-    { number: 1, isCollapsed: false },
-    { number: 1, isCollapsed: false },
-    { number: 1, isCollapsed: false },
-
-    { number: 2, isCollapsed: false },
-    { number: 2, isCollapsed: false },
-    { number: 2, isCollapsed: false },
-    { number: 2, isCollapsed: false },
-
-    { number: 3, isCollapsed: false },
-    { number: 3, isCollapsed: false },
-    { number: 3, isCollapsed: false },
-    { number: 3, isCollapsed: false },
-
-
-    { number: 4, isCollapsed: false },
-    { number: 4, isCollapsed: false },
-];
