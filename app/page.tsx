@@ -206,7 +206,7 @@ export default function Game() {
             <a className="underline text-center" href="https://www.youtube.com/watch?v=6vYEHdjlw3g">Credit: Riffle Shuffle & Roll</a>
         </div>
     </div> : <div className="h-screen w-screen flex portrait:flex-col max-w-7xl mx-auto">
-        <div className="landscape:w-2/3 portrait:h-2/3 max-h-screen max-w-screen object-center">
+        <div className="landscape:w-2/3 portrait:h-2/3 max-h-screen max-w-screen object-center overflow-clip">
 
             {!gameState && <div className="h-full flex">
                 <div className="text-xl sm:text-2xl md:text-4xl m-auto">
@@ -266,7 +266,7 @@ export default function Game() {
             </div>}
         </div>
         <div className="landscape:w-1/3 portrait:h-1/3 max-h-screen max-w-screen">
-            <div className="landscape:h-full portrait:w-full flex flex-col">
+            <div className="landscape:h-full portrait:w-full flex flex-col items-center gap-2 py-4">
                 {gameState && gameState.turn === playerNumber &&
                     <div className="grid grid-cols-3 gap-2 m-auto h-60 w-60">
                         {/* ROW 1 */}
@@ -345,7 +345,7 @@ export default function Game() {
                     </div>}
                 {gameState && gameState.phase === "end" &&
                     <>
-                        <div>Player {gameState.player1.state === "winner" ? "1" : "2"} wins!</div>
+                        <div className="text-2xl font-black">Player {gameState.player1.state === "winner" ? "1" : "2"} wins!</div>
                         <button
                             className="ring ring-white p-2"
                             onClick={() => {
