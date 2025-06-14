@@ -1,6 +1,6 @@
 "use client";
-import { GameState, initialiseGameState, updateBoard } from "@/utils/engine";
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, RotateCcw } from "lucide-react";
+import { GameState, initialiseGameState, PlayerState, updateBoard } from "@/utils/engine";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, Crown, RotateCcw, Skull } from "lucide-react";
 import { useEffect, useState } from "react";
 
 
@@ -14,7 +14,7 @@ export default function Game() {
         }
     }, []);
 
-    return <div className="h-screen w-screen flex portrait:flex-col">
+    return <div className="h-screen w-screen flex portrait:flex-col max-w-7xl mx-auto">
         <div className="landscape:w-2/3 portrait:h-2/3 max-h-screen max-w-screen object-center">
             <div className="aspect-square grid grid-cols-4 gap-1 p-4 m-auto max-h-full max-w-full">
                 {gameState && gameState.board.map((val, i) => {
@@ -23,20 +23,15 @@ export default function Game() {
                      ${val.type === "path" && "bg-gray-500"}
                      ${val.type === "default" && "bg-gray-500"}`
                     }>
-                        <div className="p-2 absolute">
+                        <div className="p-2 absolute font-black text-2xl">
                             {(val.type === "default" || val.type === "path") && val.number}
 
                         </div>
                         {val.type === "path" && gameState.player1.displayedPosition !== i && gameState.player2.displayedPosition !== i &&
                             <div className="w-1/2 aspect-square bg-gray-700 m-auto rounded-full flex items-center justify-center">
                             </div>}
-
-                        {gameState.player1.displayedPosition === i && <div className="w-1/2 aspect-square bg-red-700 m-auto rounded-full flex items-center justify-center">
-                            {gameState.player1.steps}
-                        </div>}
-                        {gameState.player2.displayedPosition === i && <div className="w-1/2 aspect-square bg-blue-700 m-auto rounded-full flex items-center justify-center">
-                            {gameState.player2.steps}
-                        </div>}
+                        {gameState.player1.displayedPosition === i && <PlayerPiece playerState={gameState.player1} className="bg-red-700" />}
+                        {gameState.player2.displayedPosition === i && <PlayerPiece playerState={gameState.player2} className="bg-blue-700" />}
                     </div>;
                 })}
             </div>
@@ -97,3 +92,31 @@ export default function Game() {
 
 }
 
+interface PlayerPieceProps {
+    playerState: PlayerState, className: string;
+}
+function PlayerPiece(props: PlayerPieceProps) {
+    const { playerState: player, className } = props;
+
+    return <div className={`w-2/3 aspect-square m-auto flex relative`}>
+        {(player.state === "winner" || player.state === "loser") && <span className="rounded-full bg-black h-1/3 w-1/3 absolute flex">
+            <div className="m-auto leading-0 font-black text-xl">
+                {player.steps}
+            </div>
+        </span>}
+        <div className={`m-auto p-1 sm:p-2 xl:p-4 rounded-full ${className} w-3/4 h-3/4`}>
+            {player.state === "winner" &&
+                <Crown className="h-full w-full" />
+            }
+            {player.state === "loser" &&
+                <Skull className="h-full w-full" />
+            }
+            {
+                (player.state === "default" || player.state === "start") &&
+                <div className="h-full w-full flex">
+                    <span className="font-black text-2xl m-auto">{player.steps}</span>
+                </div>
+            }
+        </div>
+    </div>;
+}
