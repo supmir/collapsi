@@ -10,7 +10,7 @@ type Player = 1 | 2;
 
 type PlayerAction = "up" | "down" | "left" | "right" | "confirm" | "reset";
 
-interface PlayerState {
+export interface PlayerState {
     state: "start" | "default" | "winner" | "loser";
     currentPosition: number;
     displayedPosition: number;
@@ -96,8 +96,10 @@ export function initialiseGameState(): GameState {
 
 export function updateBoard(current: GameState, action: PlayerAction): GameState {
     const targetPlayer = current.turn === 1 ? "player1" : "player2";
+    const opponenetPlayer = current.turn !== 1 ? "player1" : "player2";
 
     const currentPlayerState = current[targetPlayer];
+    const opponenetPlayerState = current[opponenetPlayer];
     console.log(action);
     switch (action) {
         case "up":
@@ -128,19 +130,25 @@ export function updateBoard(current: GameState, action: PlayerAction): GameState
         case "confirm": {
             const newBoard = mapTuple(current.board, (val) => { return { ...val, type: val.type === "path" ? "default" : val.type }; });
             newBoard[currentPlayerState.displayedPosition].type = "collapsed";
-            if (currentPlayerState.steps === 0 || (currentPlayerState.state === "start" && currentPlayerState.steps < 4))
+            if (currentPlayerState.steps === 0 || (currentPlayerState.state === "start" && currentPlayerState.steps < 4)) {
+                const isGameEnd = !isLegalMoveExist(newBoard, current[opponenetPlayer].currentPosition, current[opponenetPlayer].steps);
                 return {
                     ...current,
                     board: newBoard,
                     turn: current.turn === 1 ? 2 : 1,
                     [targetPlayer]: {
                         ...currentPlayerState,
-                        state: "default", // this one is not necessary to do when steps=0 and not start but to shorted code I will
+                        state: isGameEnd ? "winner" : "default",
                         currentPosition: currentPlayerState.displayedPosition,
                         steps: current.board[currentPlayerState.displayedPosition].number
                     },
+                    [opponenetPlayer]: {
+                        ...opponenetPlayerState,
+                        state: isGameEnd ? "loser" : opponenetPlayerState.state,
+                    },
                     history: [...current.history, currentPlayerState.actions]
                 };
+            }
             throw new Error("Not enough steps");
         }
         case "reset": {
@@ -176,3 +184,35 @@ function getNewPosition(position: number, action: PlayerAction): number {
     }
     return -1;
 }
+
+
+function isMoveValid(board: BoardState, position: number, action: PlayerAction) {
+    return board[getNewPosition(position, action)].type === "default";
+}
+
+function isLegalMoveExist(board: BoardState, position: number, steps: number): boolean {
+    // return true;
+    return _isLegalMoveExist([...board], position, steps);
+}
+
+function _isLegalMoveExist(board: BoardState, position: number, steps: number): boolean {
+    const directions: PlayerAction[] = ["up", "down", "left", "right"];
+
+    return directions.some((val) => {
+        const isOneMoveValid = isMoveValid(board, position, val);
+        if (!isOneMoveValid)
+            return false;
+        if (steps === 1)
+            return true;
+        else {
+            const originalType = board[position].type;
+            board[position].type = "path";
+            const result = _isLegalMoveExist(board, getNewPosition(position, val), steps - 1);
+            board[position].type = originalType;
+            return result;
+
+        }
+    });
+}
+
+
