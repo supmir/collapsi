@@ -2,7 +2,7 @@
 
 import { GameState, initialiseGameState, Player, PlayerState, updateBoard } from "@/utils/engine";
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, Crown, RotateCcw, Skull } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { addDoc, collection, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "@/utils/firebase";
@@ -27,12 +27,6 @@ export default function Game() {
 
     const [gameState, setGameState] = useState<GameState>();
     const [playerNumber, setPlayerNumber] = useState<Player>(1);
-
-    useEffect(() => {
-        if (gameState === undefined) {
-            setGameState(initialiseGameState());
-        }
-    }, []);
 
     return roomId === "" ? <div className="h-screen w-screen flex p-2">
         <div className="flex flex-col max-w-lg m-auto w-full  gap-4">
@@ -167,13 +161,31 @@ export default function Game() {
                         });
                     });
                     setRoomId(roomIdRef.current.value);
+                    const initialGameState = initialiseGameState();
+                    setGameState(initialGameState);
+
+                    console.log("join room", gameState);
+                    gameDataChannel.onopen = () => {
+                        gameDataChannel.send(
+                            JSON.stringify(initialGameState)
+                        );
+                    };
                 }}
             >Join room</button>
+
+            <a className="underline text-center" href="https://www.youtube.com/watch?v=6vYEHdjlw3g">Credit: Riffle Shuffle & Roll</a>
         </div>
     </div> : <div className="h-screen w-screen flex portrait:flex-col max-w-7xl mx-auto">
         <div className="landscape:w-2/3 portrait:h-2/3 max-h-screen max-w-screen object-center">
-            <div className="aspect-square grid grid-cols-4 gap-1 p-4 m-auto max-h-full max-w-full">
-                {gameState && gameState.board.map((val, i) => {
+
+            {!gameState && <div className="h-full flex">
+                <div className="text-xl sm:text-2xl md:text-4xl m-auto">
+
+                    Waiting for player 2 to enter...
+                </div>
+            </div>}
+            {gameState && <div className="aspect-square grid grid-cols-4 gap-1 p-4 m-auto max-h-full max-w-full">
+                {gameState.board.map((val, i) => {
                     return <div
                         key={i} className={`aspect-square flex relative -z-30
                          ${val.type === "collapsed" && "bg-gray-900"}`
@@ -221,7 +233,7 @@ export default function Game() {
                         </AnimatePresence>
                     </div>;
                 })}
-            </div>
+            </div>}
         </div>
         <div className="landscape:w-1/3 portrait:h-1/3 max-h-screen max-w-screen">
             <div className="landscape:h-full portrait:w-full flex flex-col">
@@ -231,7 +243,12 @@ export default function Game() {
                         {/* ROW 1 */}
                         <div></div>
                         <button className="bg-gray-700" onClick={() => {
-                            setGameState(updateBoard(gameState, "up"));
+                            if (!gameDataChannelRef.current) throw new Error("disconnected");
+                            const newGameState = updateBoard(gameState, "up");
+                            setGameState(newGameState);
+                            gameDataChannelRef.current.send(
+                                JSON.stringify(newGameState)
+                            );
                         }}>
                             <ArrowUp className="h-full w-full" />
                         </button>
@@ -239,27 +256,46 @@ export default function Game() {
 
                         {/* ROW 2 */}
                         <div className=" bg-gray-700" onClick={() => {
-                            setGameState(updateBoard(gameState, "left"));
+                            if (!gameDataChannelRef.current) throw new Error("disconnected");
+                            const newGameState = updateBoard(gameState, "left");
+                            setGameState(newGameState);
+                            gameDataChannelRef.current.send(
+                                JSON.stringify(newGameState)
+                            );
 
                         }}>
                             <ArrowLeft className="h-full w-full" />
                         </div>
                         <div className=" bg-gray-700" onClick={() => {
-                            setGameState(updateBoard(gameState, "down"));
+                            if (!gameDataChannelRef.current) throw new Error("disconnected");
+                            const newGameState = updateBoard(gameState, "down");
+                            setGameState(newGameState);
+                            gameDataChannelRef.current.send(
+                                JSON.stringify(newGameState)
+                            );
 
                         }}>
                             <ArrowDown className="h-full w-full" />
                         </div>
                         <div className=" bg-gray-700" onClick={() => {
-                            setGameState(updateBoard(gameState, "right"));
-
+                            if (!gameDataChannelRef.current) throw new Error("disconnected");
+                            const newGameState = updateBoard(gameState, "right");
+                            setGameState(newGameState);
+                            gameDataChannelRef.current.send(
+                                JSON.stringify(newGameState)
+                            );
                         }}>
                             <ArrowRight className="h-full w-full" />
                         </div>
 
                         {/* ROW 3 */}
                         <div className="bg-red-700" onClick={() => {
-                            setGameState(updateBoard(gameState, "reset"));
+                            if (!gameDataChannelRef.current) throw new Error("disconnected");
+                            const newGameState = updateBoard(gameState, "reset");
+                            setGameState(newGameState);
+                            gameDataChannelRef.current.send(
+                                JSON.stringify(newGameState)
+                            );
 
                         }}>
                             <RotateCcw className="h-full w-full" />
