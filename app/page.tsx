@@ -7,9 +7,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { addDoc, collection, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "@/utils/firebase";
 
-
 const servers = {
     iceServers: [
+        // Public STUN
         {
             urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'],
         },
@@ -18,6 +18,29 @@ const servers = {
             username: 'efPVTROUWWJ55A39IT',
             credential: 'yP21Uvqy20rU7Zgj',
         },
+        {
+            urls: 'stun:stun.relay.metered.ca:80',
+        },
+        {
+            urls: 'turn:global.relay.metered.ca:80',
+            username: '8afc8786fa0f024dedc127a4',
+            credential: 'DPJTy0I0lS1c+LpE',
+        },
+        {
+            urls: 'turn:global.relay.metered.ca:80?transport=tcp',
+            username: '8afc8786fa0f024dedc127a4',
+            credential: 'DPJTy0I0lS1c+LpE',
+        },
+        {
+            urls: 'turn:global.relay.metered.ca:443',
+            username: '8afc8786fa0f024dedc127a4',
+            credential: 'DPJTy0I0lS1c+LpE',
+        },
+        {
+            urls: 'turns:global.relay.metered.ca:443?transport=tcp',
+            username: '8afc8786fa0f024dedc127a4',
+            credential: 'DPJTy0I0lS1c+LpE',
+        }
     ],
     iceCandidatePoolSize: 10,
 };
@@ -32,10 +55,12 @@ export default function Game() {
 
     const [gameState, setGameState] = useState<GameState>();
     const [playerNumber, setPlayerNumber] = useState<Player>(1);
+    const [waitingMessage, setWaitingMessage] = useState<string>("");
 
     return roomId === "" ? <div className="h-screen w-screen flex p-2">
         <div className="flex flex-col max-w-lg m-auto w-full  gap-4">
             <button className="ring ring-white p-2" onClick={async () => {
+                setWaitingMessage("Waiting for player 2 to enter...");
                 setPlayerNumber(1);
                 pcRef.current = new RTCPeerConnection(servers);
                 const pc = pcRef.current;
@@ -63,7 +88,7 @@ export default function Game() {
 
                 pc.onicecandidate = (e) => {
                     console.log("New Offer Ice Candidate");
-                    console.log(e);
+                    console.log(e.candidate?.candidate);
                     if (e.candidate) addDoc(offerCandidatesRef, e.candidate.toJSON());
 
                 };
@@ -103,6 +128,7 @@ export default function Game() {
             <input type="text" className="ring ring-white p-2" ref={roomIdRef} />
             <button className="ring ring-white p-2"
                 onClick={async () => {
+                    setWaitingMessage("Entering the room...");
                     setPlayerNumber(2);
                     pcRef.current = new RTCPeerConnection(servers);
                     const pc = pcRef.current;
@@ -128,7 +154,7 @@ export default function Game() {
 
                     pc.onicecandidate = (e) => {
                         console.log("New Answer Ice Candidate");
-                        console.log(e);
+                        console.log(e.candidate?.candidate);
                         if (e.candidate) addDoc(answerCandidatesRef, e.candidate.toJSON());
 
                     };
@@ -185,7 +211,7 @@ export default function Game() {
             {!gameState && <div className="h-full flex">
                 <div className="text-xl sm:text-2xl md:text-4xl m-auto">
 
-                    Waiting for player 2 to enter...
+                    {waitingMessage}
                 </div>
             </div>}
             {gameState && <div className="aspect-square grid grid-cols-4 gap-1 p-4 m-auto max-h-full max-w-full">
