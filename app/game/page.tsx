@@ -41,40 +41,49 @@ export default function Game() {
             <div className="landscape:h-full portrait:w-full flex">
                 {gameState &&
                     <div className="grid grid-cols-3 gap-2 m-auto h-60 w-60">
-                        <div>
-                            {/* Red&apos;s turn<br />
-                        Moves:<br />
-                        1 */}
-                        </div>
-                        <div className=" bg-gray-700" onClick={() => {
-                            setGameState(updateBoard(gameState, "up"));
-                        }}><ArrowUp className="h-full w-full" /></div>
+                        {/* ROW 1 */}
                         <div></div>
+                        <button className="bg-gray-700" onClick={() => {
+                            setGameState(updateBoard(gameState, "up"));
+                        }}>
+                            <ArrowUp className="h-full w-full" />
+                        </button>
+                        <div></div>
+
+                        {/* ROW 2 */}
                         <div className=" bg-gray-700" onClick={() => {
                             setGameState(updateBoard(gameState, "left"));
 
-                        }}><ArrowLeft className="h-full w-full" /></div>
-
+                        }}>
+                            <ArrowLeft className="h-full w-full" />
+                        </div>
                         <div className=" bg-gray-700" onClick={() => {
                             setGameState(updateBoard(gameState, "down"));
 
-                        }}
-                        ><ArrowDown className="h-full w-full" /></div>
-
+                        }}>
+                            <ArrowDown className="h-full w-full" />
+                        </div>
                         <div className=" bg-gray-700" onClick={() => {
                             setGameState(updateBoard(gameState, "right"));
 
-                        }}><ArrowRight className="h-full w-full" /></div>
+                        }}>
+                            <ArrowRight className="h-full w-full" />
+                        </div>
 
+                        {/* ROW 3 */}
                         <div className="bg-red-700" onClick={() => {
                             setGameState(updateBoard(gameState, "reset"));
 
-                        }}><RotateCcw className="h-full w-full" /></div>
+                        }}>
+                            <RotateCcw className="h-full w-full" />
+                        </div>
                         <div></div>
                         <div className="bg-green-700" onClick={() => {
                             setGameState(updateBoard(gameState, "confirm"));
 
-                        }}><Check className="h-full w-full" /></div>
+                        }}>
+                            <Check className="h-full w-full" />
+                        </div>
 
 
                     </div>}
