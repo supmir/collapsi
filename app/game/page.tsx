@@ -1,14 +1,32 @@
 "use client";
 
-import { GameState, initialiseGameState, PlayerState, updateBoard } from "@/utils/engine";
+import { GameState, initialiseGameState, Player, PlayerState, updateBoard } from "@/utils/engine";
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, Crown, RotateCcw, Skull } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { addDoc, collection, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import { firestore } from "@/utils/firebase";
 
 
+const servers = {
+    iceServers: [
+        {
+            urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'],
+        },
+    ],
+    iceCandidatePoolSize: 10,
+};
 
 export default function Game() {
+    const pcRef = useRef<RTCPeerConnection | null>(null);
+    const gameDataChannelRef = useRef<RTCDataChannel | null>(null);
+    const roomIdRef = useRef<HTMLInputElement | null>(null);
+
+
+    const [roomId, setRoomId] = useState<string>("");
+
     const [gameState, setGameState] = useState<GameState>();
+    const [playerNumber, setPlayerNumber] = useState<Player>(1);
 
     useEffect(() => {
         if (gameState === undefined) {
@@ -16,7 +34,143 @@ export default function Game() {
         }
     }, []);
 
-    return <div className="h-screen w-screen flex portrait:flex-col max-w-7xl mx-auto">
+    return roomId === "" ? <div className="h-screen w-screen flex p-2">
+        <div className="flex flex-col max-w-lg m-auto w-full  gap-4">
+            <button className="ring ring-white p-2" onClick={async () => {
+                setPlayerNumber(1);
+                pcRef.current = new RTCPeerConnection(servers);
+                const pc = pcRef.current;
+                pc.ondatachannel = (e) => {
+                    e.channel.onmessage = (e) => {
+                        console.log(e);
+                        setGameState(JSON.parse(e.data));
+                    };
+                };
+                gameDataChannelRef.current = pc.createDataChannel("game");
+                const gameDataChannel = gameDataChannelRef.current;
+
+                gameDataChannel.onmessage = (e) => {
+                    console.log("Game Data Channel On Message");
+                    console.log(e);
+                };
+
+
+                const roomRef = doc(collection(firestore, "rooms"));
+                setRoomId(roomRef.id);
+                console.log(roomRef.id);
+
+                const offerCandidatesRef = collection(roomRef, "offerCandidates");
+                const answerCandidatesRef = collection(roomRef, "answerCandidates");
+
+                pc.onicecandidate = (e) => {
+                    console.log("New Offer Ice Candidate");
+                    console.log(e);
+                    if (e.candidate) addDoc(offerCandidatesRef, e.candidate.toJSON());
+
+                };
+
+
+                // Create offer
+                const offerDescription = await pc.createOffer();
+                await pc.setLocalDescription(offerDescription);
+
+                const offer = {
+                    sdp: offerDescription.sdp,
+                    type: offerDescription.type,
+                };
+
+                setDoc(roomRef, { offer });
+
+                onSnapshot(roomRef, (snapshot) => {
+                    const data = snapshot.data();
+                    if (!pc.currentRemoteDescription && data?.answer) {
+                        const answerDescription = new RTCSessionDescription(data.answer);
+                        pc.setRemoteDescription(answerDescription);
+                    }
+                });
+
+                onSnapshot(answerCandidatesRef, (snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === 'added') {
+                            const candidate = new RTCIceCandidate(change.doc.data());
+                            pc.addIceCandidate(candidate);
+                        }
+                    });
+                });
+
+            }}>Open Room</button>
+
+            <div className="w-full border my-4 border-neutral-400"></div>
+            <input type="text" className="ring ring-white p-2" ref={roomIdRef} />
+            <button className="ring ring-white p-2"
+                onClick={async () => {
+                    setPlayerNumber(2);
+                    pcRef.current = new RTCPeerConnection(servers);
+                    const pc = pcRef.current;
+                    pc.ondatachannel = (e) => {
+                        e.channel.onmessage = (e) => {
+                            console.log(e);
+                            setGameState(JSON.parse(e.data));
+                        };
+                    };
+                    gameDataChannelRef.current = pc.createDataChannel("game");
+                    const gameDataChannel = gameDataChannelRef.current;
+
+                    gameDataChannel.onmessage = (e) => {
+                        console.log("Game Data Channel On Message");
+                        console.log(e);
+                    };
+
+                    if (!roomIdRef.current?.value) return;
+                    const roomRef = doc(firestore, "rooms", roomIdRef.current.value);
+
+                    const offerCandidatesRef = collection(roomRef, "offerCandidates");
+                    const answerCandidatesRef = collection(roomRef, "answerCandidates");
+
+                    pc.onicecandidate = (e) => {
+                        console.log("New Answer Ice Candidate");
+                        console.log(e);
+                        if (e.candidate) addDoc(answerCandidatesRef, e.candidate.toJSON());
+
+                    };
+
+                    const roomDoc = await getDoc(roomRef);
+
+                    if (!roomDoc.exists()) {
+                        return;
+                    }
+
+                    const data = roomDoc.data();
+
+                    const offerDescription = data.offer;
+                    await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+
+                    const answerDescription = await pc.createAnswer();
+                    await pc.setLocalDescription(answerDescription);
+
+
+                    const answer = {
+                        type: answerDescription.type,
+                        sdp: answerDescription.sdp,
+                    };
+
+                    await updateDoc(roomRef, { answer });
+
+
+
+                    onSnapshot(offerCandidatesRef, (snapshot) => {
+                        snapshot.docChanges().forEach((change) => {
+                            if (change.type === 'added') {
+                                const candidate = new RTCIceCandidate(change.doc.data());
+                                pc.addIceCandidate(candidate);
+                            }
+                        });
+                    });
+                    setRoomId(roomIdRef.current.value);
+                }}
+            >Join room</button>
+        </div>
+    </div> : <div className="h-screen w-screen flex portrait:flex-col max-w-7xl mx-auto">
         <div className="landscape:w-2/3 portrait:h-2/3 max-h-screen max-w-screen object-center">
             <div className="aspect-square grid grid-cols-4 gap-1 p-4 m-auto max-h-full max-w-full">
                 {gameState && gameState.board.map((val, i) => {
@@ -70,8 +224,9 @@ export default function Game() {
             </div>
         </div>
         <div className="landscape:w-1/3 portrait:h-1/3 max-h-screen max-w-screen">
-            <div className="landscape:h-full portrait:w-full flex">
-                {gameState &&
+            <div className="landscape:h-full portrait:w-full flex flex-col">
+                <div className="mx-auto">Room ID: {roomId}</div>
+                {gameState && gameState.turn === playerNumber &&
                     <div className="grid grid-cols-3 gap-2 m-auto h-60 w-60">
                         {/* ROW 1 */}
                         <div></div>
@@ -111,8 +266,12 @@ export default function Game() {
                         </div>
                         <div></div>
                         <div className="bg-green-700" onClick={() => {
-                            setGameState(updateBoard(gameState, "confirm"));
-
+                            if (!gameDataChannelRef.current) throw new Error("disconnected");
+                            const newGameState = updateBoard(gameState, "confirm");
+                            setGameState(newGameState);
+                            gameDataChannelRef.current.send(
+                                JSON.stringify(newGameState)
+                            );
                         }}>
                             <Check className="h-full w-full" />
                         </div>
@@ -122,6 +281,7 @@ export default function Game() {
             </div>
         </div>
     </div>;
+
 
 }
 

@@ -5,7 +5,7 @@ interface CardState {
     type: "default" | "collapsed" | "path";
 }
 
-type Player = 1 | 2;
+export type Player = 1 | 2;
 
 
 type PlayerAction = "up" | "down" | "left" | "right" | "confirm" | "reset";
