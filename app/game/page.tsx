@@ -27,7 +27,7 @@ export default function Game() {
                             {(val.type === "default" || val.type === "path") && val.number}
 
                         </div>
-                        {val.type === "path" && gameState.player1.displayedPosition !== i &&
+                        {val.type === "path" && gameState.player1.displayedPosition !== i && gameState.player2.displayedPosition !== i &&
                             <div className="w-1/2 aspect-square bg-gray-700 m-auto rounded-full flex items-center justify-center">
                             </div>}
 
