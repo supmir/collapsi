@@ -128,26 +128,14 @@ export function updateBoard(current: GameState, action: PlayerAction): GameState
         case "confirm": {
             const newBoard = mapTuple(current.board, (val) => { return { ...val, type: val.type === "path" ? "default" : val.type }; });
             newBoard[currentPlayerState.displayedPosition].type = "collapsed";
-            if (currentPlayerState.steps === 0)
+            if (currentPlayerState.steps === 0 || (currentPlayerState.state === "start" && currentPlayerState.steps < 4))
                 return {
                     ...current,
                     board: newBoard,
                     turn: current.turn === 1 ? 2 : 1,
                     [targetPlayer]: {
                         ...currentPlayerState,
-                        currentPosition: currentPlayerState.displayedPosition,
-                        steps: current.board[currentPlayerState.displayedPosition].number
-                    },
-                    history: [...current.history, currentPlayerState.actions]
-                };
-            if (currentPlayerState.state === "start" && currentPlayerState.steps < 4)
-                return {
-                    ...current,
-                    board: newBoard,
-                    turn: current.turn === 1 ? 2 : 1,
-                    [targetPlayer]: {
-                        ...currentPlayerState,
-                        state: "default",
+                        state: "default", // this one is not necessary to do when steps=0 and not start but to shorted code I will
                         currentPosition: currentPlayerState.displayedPosition,
                         steps: current.board[currentPlayerState.displayedPosition].number
                     },
