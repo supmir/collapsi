@@ -29,6 +29,7 @@ export interface GameState {
     turn: Player,
     player1: PlayerState,
     player2: PlayerState,
+    history: PlayerAction[][];
 
 }
 function shuffleTuple<T extends unknown[]>(tuple: readonly [...T]): [...T] {
@@ -88,7 +89,8 @@ export function initialiseGameState(): GameState {
             steps: 4,
             state: "start",
             actions: []
-        }
+        },
+        history: [],
     };
 }
 
@@ -136,6 +138,7 @@ export function updateBoard(current: GameState, action: PlayerAction): GameState
                         currentPosition: currentPlayerState.displayedPosition,
                         steps: current.board[currentPlayerState.displayedPosition].number
                     },
+                    history: [...current.history, currentPlayerState.actions]
                 };
             if (currentPlayerState.state === "start" && currentPlayerState.steps < 4)
                 return {
@@ -148,6 +151,7 @@ export function updateBoard(current: GameState, action: PlayerAction): GameState
                         currentPosition: currentPlayerState.displayedPosition,
                         steps: current.board[currentPlayerState.displayedPosition].number
                     },
+                    history: [...current.history, currentPlayerState.actions]
                 };
             throw new Error("Not enough steps");
         }
