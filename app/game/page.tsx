@@ -20,13 +20,17 @@ export default function Game() {
                 {gameState && gameState.board.map((val, i) => {
                     return <div key={i} className={`aspect-square flex
                          ${val.type === "collapsed" && "bg-gray-900"}
-                     ${val.type === "path" && "bg-gray-700"}
+                     ${val.type === "path" && "bg-gray-500"}
                      ${val.type === "default" && "bg-gray-500"}`
                     }>
                         <div className="p-2 absolute">
                             {(val.type === "default" || val.type === "path") && val.number}
 
                         </div>
+                        {val.type === "path" && gameState.player1.displayedPosition !== i &&
+                            <div className="w-1/2 aspect-square bg-gray-700 m-auto rounded-full flex items-center justify-center">
+                            </div>}
+
                         {gameState.player1.displayedPosition === i && <div className="w-1/2 aspect-square bg-red-700 m-auto rounded-full flex items-center justify-center">
                             {gameState.player1.steps}
                         </div>}
