@@ -25,14 +25,23 @@ export default function Game() {
                          ${val.type === "collapsed" && "bg-gray-900"}`
                         }>
                         <AnimatePresence>
-                            {(val.type === "default" || val.type === "path") && <motion.div
+                            {(val.type === "default" || val.type === "path" || gameState.player1.displayedPosition === i || gameState.player2.displayedPosition === i) && <motion.div
                                 className="absolute h-full w-full bg-gray-500 -z-20"
-                                // initial={{ opacity: 0, scale: 0 }}
-                                // animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0 }}
-                                transition={{
-                                    duration: 0.4,
-                                    scale: { type: "spring", visualDuration: 2, bounce: 0.5 },
+                                initial={{
+                                    opacity: 0, scale: 0
+                                }}
+                                animate={{
+                                    opacity: 1, scale: 1, transition: {
+                                        duration: 0.4,
+                                        scale: { type: "spring", visualDuration: 0.4, bounce: 0.5 },
+
+                                    }
+                                }}
+                                exit={{
+                                    opacity: 0, scale: 0, transition: {
+                                        duration: 0.7,
+                                        scale: { type: "spring", visualDuration: 0.7, bounce: 0.5 },
+                                    }
                                 }}
                             >
                                 <div className="font-black text-2xl p-1">
