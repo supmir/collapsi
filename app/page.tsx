@@ -193,7 +193,7 @@ export default function Game() {
                     });
                     setRoomId(roomIdRef.current.value);
                     gameDataChannel.onopen = () => {
-                        const initialGameState = initialiseGameState();
+                        const initialGameState = initialiseGameState(1);
                         setGameState(initialGameState);
                         console.log("join room", gameState);
                         gameDataChannel.send(
@@ -343,6 +343,23 @@ export default function Game() {
 
 
                     </div>}
+                {gameState && gameState.phase === "end" &&
+                    <>
+                        <div>Player {gameState.player1.state === "winner" ? "1" : "2"} wins!</div>
+                        <button
+                            className="ring ring-white p-2"
+                            onClick={() => {
+                                const initialGameState = initialiseGameState(gameState.player1.state === "winner" ? 2 : 1);
+                                setGameState(initialGameState);
+                                if (gameDataChannelRef.current)
+                                    gameDataChannelRef.current.send(
+                                        JSON.stringify(initialGameState)
+                                    );
+
+                            }}
+                        >Play again</button>
+                    </>
+                }
                 <div className="mx-auto">Room ID: {roomId}</div>
                 <div className="mx-auto">Connection State: {pcRef.current?.connectionState}</div>
             </div>
