@@ -35,11 +35,11 @@ export default function Square(props: SquareProps) {
     const isShowReset = (playerStateCurrentPosition?.currentPosition !== playerStateCurrentPosition?.displayedPosition) && isPlayerTurn;
 
     return <div
-        className="aspect-square flex relative bg-gray-900 -z-50">
+        className="aspect-square flex relative bg-gray-900">
         <AnimatePresence>
             {/* Floating platform */}
             {isShowPlatform && <motion.div
-                className="absolute h-full w-full bg-gray-500 -z-40"
+                className="absolute h-full w-full bg-gray-500 z-10"
                 initial={{
                     opacity: 0, scale: 0
                 }}
@@ -100,7 +100,7 @@ export default function Square(props: SquareProps) {
                         duration: 0.4,
                         scale: { type: "spring", visualDuration: 0.4, bounce: 0.5 },
                     }}
-                    className="w-full h-full flex z-20"
+                    className="w-full h-full flex z-50"
                     onClick={() => {
                         updateBoard("reset");
                     }}

@@ -256,6 +256,19 @@ export default function Game() {
                 })}
             </div>
             {gameState.phase === "play" && <div className="grid min-w-48 text-center landscape:my-auto gap-2 p-4">
+
+
+
+                <div className="flex gap-2 justify-center min-w-48">
+                    <span className="my-auto">You are playing as</span>
+                    <span className={`my-auto flex justify-center items-center rounded-full h-12 w-12 ${playerNumber === 1 ? "bg-red-700" : "bg-blue-700"}`}>
+                        {playerNumber === 1 ? "Red" : "Blue"}
+                    </span>
+                </div>
+
+
+
+
                 {gameState.turn === playerNumber && <div>It&apos;s your turn!</div>}
                 {gameState.turn === playerNumber &&
                     ((playerNumber === 1 ? gameState.player1 : gameState.player2).steps
@@ -263,6 +276,9 @@ export default function Game() {
                         ((playerNumber === 1 ? gameState.player1 : gameState.player2).state === "start" ? 3 : 0)
                     ) && <div>Tap on your player to end your turn</div>}
                 {gameState.turn !== playerNumber && <div>Waiting for other player...</div>}
+                {pcRef.current &&
+                    <div className="text-center">Connection status: {pcRef.current?.connectionState}</div>
+                }
             </div>}
 
             {gameState.phase === "end" && <div className="grid min-w-48 text-center landscape:my-auto gap-2 p-4">
@@ -272,10 +288,10 @@ export default function Game() {
                         setGameState(initialiseGameState(gameState.player1.state === "winner" ? 2 : 1));
                     }}
                 >Play again!</button>
+                {pcRef.current &&
+                    <div className="text-center">Connection status: {pcRef.current?.connectionState}</div>
+                }
             </div>}
-            {pcRef.current &&
-                <div className="text-center">Connection status: {pcRef.current?.connectionState}</div>
-            }
         </div>}
     </div>;
 

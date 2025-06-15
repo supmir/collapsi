@@ -38,7 +38,7 @@ export default function PlayerPiece(props: PlayerPieceProps) {
     };
 
     return <motion.button
-        className={`w-full h-full flex z-20`}
+        className={`w-full h-full flex z-50`}
         // initial={{ opacity: 0, scale: 0 }}
         // animate={{ opacity: 1, scale: 1 }}
         // exit={{ opacity: 0, scale: 0 }}
