@@ -274,7 +274,7 @@ export default function Game() {
                 >Play again!</button>
             </div>}
             {pcRef.current &&
-                <div>Connection status: {pcRef.current?.connectionState}</div>
+                <div className="text-center">Connection status: {pcRef.current?.connectionState}</div>
             }
         </div>}
     </div>;
