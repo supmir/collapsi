@@ -1,7 +1,7 @@
 "use client";
 
 import { GameState, initialiseGameState, Player, PlayerAction, updateBoard } from "@/utils/engine";
-import { Check, Copy, CopyCheck, RotateCcw } from "lucide-react";
+import { Copy, CopyCheck } from "lucide-react";
 import { useRef, useState } from "react";
 import { addDoc, collection, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "@/utils/firebase";
@@ -236,7 +236,7 @@ export default function Game() {
             </div>}
         {gameState && <div className="flex portrait:flex-col">
             <div className="landscape:h-screen portrait:w-screen aspect-square grid grid-cols-4 gap-1 p-4 max-h-full max-w-full overflow-clip">
-                {gameState.board.map((cardState, i) => {
+                {gameState.board.map((_, i) => {
                     return <Square
                         key={i}
                         cardNumber={i}
@@ -245,35 +245,6 @@ export default function Game() {
                         updateBoard={userActionRelay}
                     />;
                 })}
-            </div>
-
-
-            <div className="grid grid-cols-3 min-w-48 text-center landscape:my-auto gap-2 p-4">
-                {/* <div className="ring ring-white">Reset</div>
-                <div className="ring ring-white">End Turn</div> */}
-
-                <div className="ring ring-white" onClick={() => {
-                    if (!gameDataChannelRef.current) throw new Error("disconnected");
-                    const newGameState = updateBoard(gameState, "reset");
-                    setGameState(newGameState);
-                    gameDataChannelRef.current.send(
-                        JSON.stringify(newGameState)
-                    );
-
-                }}>
-                    <RotateCcw className="h-full w-full" />
-                </div>
-                <div></div>
-                <div className="ring ring-white" onClick={() => {
-                    if (!gameDataChannelRef.current) throw new Error("disconnected");
-                    const newGameState = updateBoard(gameState, "confirm");
-                    setGameState(newGameState);
-                    gameDataChannelRef.current.send(
-                        JSON.stringify(newGameState)
-                    );
-                }}>
-                    <Check className="h-full w-full" />
-                </div>
             </div>
         </div>}
     </div>;

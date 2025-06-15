@@ -112,7 +112,7 @@ export default function Square(props: SquareProps) {
                     </div>
 
                 </motion.button>}
-            {hasDisplayedPlayer && <PlayerPiece playerState={playerState} isTurn={playerState.id === gameState.turn} className={`${playerState.id === 1 ? "bg-red-700" : "bg-blue-700"} z-20`} />}
+            {hasDisplayedPlayer && <PlayerPiece playerState={playerState} isTurn={playerState.id === gameState.turn} className={`${playerState.id === 1 ? "bg-red-700" : "bg-blue-700"} z-20`} updateBoard={updateBoard} />}
         </AnimatePresence>
     </div>;
 }
