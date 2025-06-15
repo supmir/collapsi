@@ -259,23 +259,48 @@ export default function Game() {
 
 
 
-                <div className="flex gap-2 justify-center min-w-48">
-                    <span className="my-auto">You are playing as</span>
-                    <span className={`my-auto flex justify-center items-center rounded-full h-12 w-12 ${playerNumber === 1 ? "bg-red-700" : "bg-blue-700"}`}>
-                        {playerNumber === 1 ? "Red" : "Blue"}
-                    </span>
-                </div>
 
 
 
 
-                {gameState.turn === playerNumber && <div>It&apos;s your turn!</div>}
+
+                {gameState.turn === playerNumber && <>
+                    <div>It&apos;s your turn!</div>
+                    {/* <div className="flex gap-2 justify-center min-w-48">
+                        <span className="my-auto">You are </span>
+                        <span className={`my-auto flex justify-center items-center rounded-full h-6 w-6 ${playerNumber === 1 ? "bg-red-700" : "bg-blue-700"}`}></span>
+                    </div> */}
+                </>}
+                {gameState.turn === playerNumber &&
+                    ((playerNumber === 1 ? gameState.player1 : gameState.player2).steps
+                        >
+                        0
+                    ) &&
+
+                    <div className="flex gap-2 justify-center min-w-48">
+                        <span className="my-auto">Tap</span>
+                        <span className={`my-auto flex justify-center items-center rounded-full h-6 w-6 bg-gray-700`}></span>
+                        <span className="my-auto">to move</span>
+                    </div>
+                }
                 {gameState.turn === playerNumber &&
                     ((playerNumber === 1 ? gameState.player1 : gameState.player2).steps
                         <=
                         ((playerNumber === 1 ? gameState.player1 : gameState.player2).state === "start" ? 3 : 0)
-                    ) && <div>Tap on your player to end your turn</div>}
-                {gameState.turn !== playerNumber && <div>Waiting for other player...</div>}
+                    ) &&
+
+                    <div className="flex gap-2 justify-center min-w-48">
+                        <span className="my-auto">Tap</span>
+                        <span className={`my-auto flex justify-center items-center rounded-full h-6 w-6 ${playerNumber === 1 ? "bg-red-700" : "bg-blue-700"}`}></span>
+                        <span className="my-auto">to end turn</span>
+                    </div>
+                }
+                {gameState.turn !== playerNumber &&
+                    <div className="flex gap-2 justify-center min-w-48">
+                        <span className="my-auto">Waiting for </span>
+                        <span className={`my-auto flex justify-center items-center rounded-full h-6 w-6 ${playerNumber !== 1 ? "bg-red-700" : "bg-blue-700"}`}></span>
+                    </div>
+                }
                 {pcRef.current &&
                     <div className="text-center">Connection status: {pcRef.current?.connectionState}</div>
                 }
