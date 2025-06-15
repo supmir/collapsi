@@ -1,23 +1,36 @@
-import { CardState, Player, PlayerAction, PlayerState } from "@/utils/engine";
+import { GameState, Player, PlayerAction } from "@/utils/engine";
 import { AnimatePresence, motion } from "motion/react";
 import PlayerPiece from "./PlayerPiece";
 
 interface SquareProps {
-    cardState: CardState;
-    playerState?: PlayerState;
-    turn: Player;
-    isTurn: boolean;
-    action?: PlayerAction;
+    gameState: GameState;
+    cardNumber: number;
+    playerNumber: Player;
     updateBoard: (action: PlayerAction) => void;
 }
 
 export default function Square(props: SquareProps) {
-    const { cardState, playerState, turn, isTurn, action, updateBoard } = props;
+    const { gameState, cardNumber, playerNumber, updateBoard } = props;
+    const cardState = gameState.board[cardNumber];
+    const action = gameState.validMoves[cardNumber];
+
+    const isPlayerTurn = playerNumber === gameState.turn;
+
+    const playerState = gameState.player1.displayedPosition === cardNumber ? gameState.player1 :
+        (gameState.player2.displayedPosition === cardNumber ? gameState.player2 : undefined);
+
+    const hasDisplayedPlayer = !!playerState;
+
+    const isShowPlatform = cardState.type === "default" || cardState.type === "path" || hasDisplayedPlayer;
+
+    const isShowPath = cardState.type === "path" && !isPlayerTurn && !hasDisplayedPlayer;
+    const isShowLegalMoves = action && isPlayerTurn;
+
     return <div
         className="aspect-square flex relative bg-gray-900">
         <AnimatePresence>
             {/* Floating platform */}
-            {(cardState.type === "default" || cardState.type === "path" || playerState) && <motion.div
+            {isShowPlatform && <motion.div
                 className="absolute h-full w-full bg-gray-500 z-10"
                 initial={{
                     opacity: 0, scale: 0
@@ -42,7 +55,7 @@ export default function Square(props: SquareProps) {
             </motion.div>}
         </AnimatePresence>
         <AnimatePresence initial={false}>
-            {cardState.type === "path" && !isTurn && !playerState &&
+            {isShowPath &&
                 <motion.div
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -51,11 +64,11 @@ export default function Square(props: SquareProps) {
                         duration: 0.4,
                         scale: { type: "spring", visualDuration: 0.4, bounce: 0.5 },
                     }}
-                    className={`w-5/12 aspect-square m-auto rounded-full flex items-center justify-center z-20 ${turn === 1 ? "bg-red-200" : "bg-blue-200"}`}
+                    className={`w-5/12 aspect-square m-auto rounded-full flex items-center justify-center z-20 ${gameState.turn === 1 ? "bg-red-200" : "bg-blue-200"}`}
                 >
                 </motion.div>}
 
-            {action && !playerState &&
+            {isShowLegalMoves &&
                 <motion.button
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -70,7 +83,7 @@ export default function Square(props: SquareProps) {
                     }}
                 >
                 </motion.button>}
-            {playerState && <PlayerPiece playerState={playerState} isTurn={turn === playerState.id} className={`${playerState.id === 1 ? "bg-red-700" : "bg-blue-700"} z-20`} />}
+            {hasDisplayedPlayer && <PlayerPiece playerState={playerState} isTurn={playerState.id === gameState.turn} className={`${playerState.id === 1 ? "bg-red-700" : "bg-blue-700"} z-20`} />}
         </AnimatePresence>
     </div>;
 }

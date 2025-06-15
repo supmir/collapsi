@@ -239,17 +239,9 @@ export default function Game() {
                 {gameState.board.map((cardState, i) => {
                     return <Square
                         key={i}
-                        cardState={cardState}
-                        playerState={gameState.player1.displayedPosition === i ?
-                            gameState.player1 :
-                            (gameState.player2.displayedPosition === i ?
-                                gameState.player2 :
-                                undefined)}
-                        turn={gameState.turn}
-                        isTurn={gameState.turn === playerNumber}
-                        action={
-                            gameState.turn === playerNumber ? gameState.validMoves[i] : undefined
-                        }
+                        cardNumber={i}
+                        gameState={gameState}
+                        playerNumber={playerNumber}
                         updateBoard={userActionRelay}
                     />;
                 })}
