@@ -79,7 +79,7 @@ export default function Game() {
                 };
 
 
-                const roomRef = doc(collection(firestore, "rooms"));
+                const roomRef = doc(firestore, "rooms", generateRoomCode());
                 setRoomId(roomRef.id);
                 console.log(roomRef.id);
 
@@ -418,4 +418,14 @@ function PlayerPiece(props: PlayerPieceProps) {
             }
         </div>
     </motion.div >;
+}
+
+
+function generateRoomCode(length = 4): string {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let code = '';
+    for (let i = 0; i < length; i++) {
+        code += letters.charAt(Math.floor(Math.random() * letters.length));
+    }
+    return code;
 }
