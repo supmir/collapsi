@@ -3,10 +3,9 @@
 import { GameState, initialiseGameState, Player, updateBoard } from "@/utils/engine";
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, RotateCcw } from "lucide-react";
 import { useRef, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
 import { addDoc, collection, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "@/utils/firebase";
-import PlayerPiece from "@/componenents/PlayerPiece";
+import Square from "@/componenents/Square";
 
 const servers = {
     iceServers: [
@@ -208,61 +207,23 @@ export default function Game() {
         </div>
     </div> : <div className="h-screen w-screen flex portrait:flex-col max-w-7xl mx-auto">
         <div className="landscape:w-2/3 portrait:h-2/3 max-h-screen max-w-screen object-center overflow-clip">
-
             {!gameState && <div className="h-full flex">
                 <div className="text-xl sm:text-2xl md:text-4xl m-auto">
-
                     {waitingMessage}
                 </div>
             </div>}
             {gameState && <div className="aspect-square grid grid-cols-4 gap-1 p-4 m-auto max-h-full max-w-full">
-                {gameState.board.map((val, i) => {
-                    return <div
-                        key={i} className={`aspect-square flex relative -z-30
-                         ${val.type === "collapsed" && "bg-gray-900"}`
-                        }>
-                        <AnimatePresence>
-                            {(val.type === "default" || val.type === "path" || gameState.player1.displayedPosition === i || gameState.player2.displayedPosition === i) && <motion.div
-                                className="absolute h-full w-full bg-gray-500 -z-20"
-                                initial={{
-                                    opacity: 0, scale: 0
-                                }}
-                                animate={{
-                                    opacity: 1, scale: 1, transition: {
-                                        duration: 0.4,
-                                        scale: { type: "spring", visualDuration: 0.4, bounce: 0.5 },
-
-                                    }
-                                }}
-                                exit={{
-                                    opacity: 0, scale: 0, transition: {
-                                        duration: 0.7,
-                                        scale: { type: "spring", visualDuration: 0.7, bounce: 0.5 },
-                                    }
-                                }}
-                            >
-                                <div className="font-black text-2xl p-1">
-                                    {(val.type === "default" || val.type === "path") && val.number}
-                                </div>
-                            </motion.div>}
-                        </AnimatePresence>
-                        <AnimatePresence initial={false}>
-                            {val.type === "path" && gameState.player1.displayedPosition !== i && gameState.player2.displayedPosition !== i &&
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0 }}
-                                    transition={{
-                                        duration: 0.4,
-                                        scale: { type: "spring", visualDuration: 0.4, bounce: 0.5 },
-                                    }}
-                                    className="w-1/2 aspect-square bg-gray-700 m-auto rounded-full flex items-center justify-center"
-                                >
-                                </motion.div>}
-                            {gameState.player1.displayedPosition === i && <PlayerPiece playerState={gameState.player1} isTurn={gameState.turn === 1} className="bg-red-700 -z-10" />}
-                            {gameState.player2.displayedPosition === i && <PlayerPiece playerState={gameState.player2} isTurn={gameState.turn === 2} className="bg-blue-700 -z-10" />}
-                        </AnimatePresence>
-                    </div>;
+                {gameState.board.map((cardState, i) => {
+                    return <Square
+                        key={i}
+                        cardState={cardState}
+                        playerState={gameState.player1.displayedPosition === i ?
+                            gameState.player1 :
+                            (gameState.player2.displayedPosition === i ?
+                                gameState.player2 :
+                                undefined)}
+                        turn={gameState.turn}
+                    />;
                 })}
             </div>}
         </div>

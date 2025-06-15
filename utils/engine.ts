@@ -1,6 +1,6 @@
 
 
-interface CardState {
+export interface CardState {
     number: -2 | -1 | 1 | 2 | 3 | 4;
     type: "default" | "collapsed" | "path";
 }
@@ -11,6 +11,7 @@ export type Player = 1 | 2;
 type PlayerAction = "up" | "down" | "left" | "right" | "confirm" | "reset";
 
 export interface PlayerState {
+    id: Player,
     state: "start" | "default" | "winner" | "loser";
     currentPosition: number;
     displayedPosition: number;
@@ -78,6 +79,7 @@ export function initialiseGameState(turn: Player): GameState {
         board: tempBoard,
         turn: turn,
         player1: {
+            id: 1,
             displayedPosition: tempBoard.findIndex(obj => obj.number === -1),
             currentPosition: tempBoard.findIndex(obj => obj.number === -1),
             steps: 4,
@@ -85,6 +87,7 @@ export function initialiseGameState(turn: Player): GameState {
             actions: []
         },
         player2: {
+            id: 2,
             displayedPosition: tempBoard.findIndex(obj => obj.number === -2),
             currentPosition: tempBoard.findIndex(obj => obj.number === -2),
             steps: 4,
