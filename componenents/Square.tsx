@@ -32,7 +32,7 @@ export default function Square(props: SquareProps) {
     const playerStateCurrentPosition = gameState.player1.currentPosition === cardNumber ? gameState.player1 :
         (gameState.player2.currentPosition === cardNumber ? gameState.player2 : undefined);
 
-    const isShowReset = playerStateCurrentPosition?.currentPosition !== playerStateCurrentPosition?.displayedPosition;
+    const isShowReset = (playerStateCurrentPosition?.currentPosition !== playerStateCurrentPosition?.displayedPosition) && isPlayerTurn;
 
     return <div
         className="aspect-square flex relative bg-gray-900">
