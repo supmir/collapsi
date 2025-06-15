@@ -11,7 +11,7 @@ export default function PlayerPiece(props: PlayerPieceProps) {
     const { playerState, className, isTurn } = props;
 
     return <motion.div
-        className={`w-2/3 aspect-square m-auto flex`}
+        className={`w-2/3 aspect-square m-auto flex z-20`}
         // initial={{ opacity: 0, scale: 0 }}
         // animate={{ opacity: 1, scale: 1 }}
         // exit={{ opacity: 0, scale: 0 }}

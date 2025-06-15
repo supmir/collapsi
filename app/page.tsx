@@ -223,6 +223,18 @@ export default function Game() {
                                 gameState.player2 :
                                 undefined)}
                         turn={gameState.turn}
+                        isTurn={gameState.turn === playerNumber}
+                        action={
+                            gameState.turn === playerNumber ? gameState.validMoves[i] : undefined
+                        }
+                        updateBoard={(action) => {
+                            if (!gameDataChannelRef.current) throw new Error("disconnected");
+                            const newGameState = updateBoard(gameState, action);
+                            setGameState(newGameState);
+                            gameDataChannelRef.current.send(
+                                JSON.stringify(newGameState)
+                            );
+                        }}
                     />;
                 })}
             </div>}
