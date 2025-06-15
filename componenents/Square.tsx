@@ -85,7 +85,7 @@ export default function Square(props: SquareProps) {
                         duration: 0.4,
                         scale: { type: "spring", visualDuration: 0.4, bounce: 0.5 },
                     }}
-                    className="w-1/2 aspect-square bg-gray-700 m-auto rounded-full flex items-center justify-center z-20"
+                    className="w-1/2 aspect-square bg-gray-700 m-auto rounded-full flex items-center justify-center z-50"
                     onClick={() => {
                         updateBoard(action);
                     }}
