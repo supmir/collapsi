@@ -3,7 +3,7 @@
 import { GameState, initialiseGameState, Player, PlayerAction, updateBoard } from "@/utils/engine";
 import { Copy, CopyCheck } from "lucide-react";
 import { useRef, useState } from "react";
-import { addDoc, collection, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, setDoc, Timestamp, updateDoc } from "firebase/firestore";
 import { firestore } from "@/utils/firebase";
 import Square from "@/componenents/Square";
 
@@ -98,6 +98,13 @@ export default function Game() {
                 const offerCandidatesRef = collection(roomRef, "offerCandidates");
                 const answerCandidatesRef = collection(roomRef, "answerCandidates");
 
+
+                const offerSnap = await getDocs(collection(roomRef, "offerCandidates"));
+                offerSnap.forEach(doc => deleteDoc(doc.ref));
+
+                const answerSnap = await getDocs(collection(roomRef, "answerCandidates"));
+                answerSnap.forEach(doc => deleteDoc(doc.ref));
+
                 pc.onicecandidate = (e) => {
                     console.log("New Offer Ice Candidate");
                     console.log(e.candidate?.candidate);
@@ -115,7 +122,7 @@ export default function Game() {
                     type: offerDescription.type,
                 };
 
-                setDoc(roomRef, { offer });
+                setDoc(roomRef, { offer, ttl: Timestamp.fromDate(new Date(Date.now() + 60 * 60 * 1000)) });
 
                 onSnapshot(roomRef, (snapshot) => {
                     const data = snapshot.data();
@@ -138,6 +145,7 @@ export default function Game() {
 
             <div className="w-full border my-4 border-neutral-400"></div>
             <input type="text" className="ring ring-white p-2" ref={roomIdRef} />
+            <div>{waitingMessage}</div>
             <button className="ring ring-white p-2"
                 onClick={async () => {
                     setWaitingMessage("Entering the room...");
@@ -159,7 +167,7 @@ export default function Game() {
                     };
 
                     if (!roomIdRef.current?.value) return;
-                    const roomRef = doc(firestore, "rooms", roomIdRef.current.value);
+                    const roomRef = doc(firestore, "rooms", roomIdRef.current.value.toUpperCase());
 
                     const offerCandidatesRef = collection(roomRef, "offerCandidates");
                     const answerCandidatesRef = collection(roomRef, "answerCandidates");
@@ -174,6 +182,7 @@ export default function Game() {
                     const roomDoc = await getDoc(roomRef);
 
                     if (!roomDoc.exists()) {
+                        setWaitingMessage("Meeting room not found.");
                         return;
                     }
 
@@ -246,6 +255,15 @@ export default function Game() {
                     />;
                 })}
             </div>
+            {gameState.phase === "play" && <div className="grid min-w-48 text-center landscape:my-auto gap-2 p-4">
+                {gameState.turn === playerNumber && <div>It&apos;s your turn!</div>}
+                {gameState.turn === playerNumber &&
+                    ((playerNumber === 1 ? gameState.player1 : gameState.player2).steps
+                        <=
+                        ((playerNumber === 1 ? gameState.player1 : gameState.player2).state === "start" ? 3 : 0)
+                    ) && <div>Tap on your player to end your turn</div>}
+                {gameState.turn !== playerNumber && <div>Waiting for other player...</div>}
+            </div>}
 
             {gameState.phase === "end" && <div className="grid min-w-48 text-center landscape:my-auto gap-2 p-4">
                 <div>You {playerNumber === 1 && gameState.player1.state === "winner" ? "win" : "lose"}!</div>
@@ -255,6 +273,9 @@ export default function Game() {
                     }}
                 >Play again!</button>
             </div>}
+            {pcRef.current &&
+                <div>Connection status: {pcRef.current?.connectionState}</div>
+            }
         </div>}
     </div>;
 
