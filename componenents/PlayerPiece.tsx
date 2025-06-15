@@ -1,6 +1,6 @@
 import { PlayerAction, PlayerState } from "@/utils/engine";
-import { Check, Crown, Skull } from "lucide-react";
-import { motion, VariantLabels } from "motion/react";
+import { Crown, Skull } from "lucide-react";
+import { AnimationGeneratorType, motion } from "motion/react";
 
 interface PlayerPieceProps {
     playerState: PlayerState;
@@ -10,27 +10,33 @@ interface PlayerPieceProps {
 
 }
 export default function PlayerPiece(props: PlayerPieceProps) {
-    const { playerState, className, isTurn, updateBoard } = props;
-    const transition = {
-        pathLength: { delay: 2, duration: 2 },
-        stroke: { duration: 2 }
+    const { playerState, className, updateBoard } = props;
+
+    // const animate = {
+    //     scale: 1, transition: {
+    //         scale: {
+    //             type: "spring" as AnimationGeneratorType,
+    //             delay: 0.1,
+    //             visualDuration: 1
+    //         }
+    //     }
+    // };
+    const animate = {
+        fill: "#fff", transition: {
+            fill: {
+                type: "spring" as AnimationGeneratorType,
+                delay: 0.1,
+                visualDuration: 1
+            }
+        }
     };
 
+    const initial = { fill: "#000" };
     const variants = {
-        "animate-0/1": { pathLength: 0.0, transition: transition },
-        "animate-0/2": { pathLength: 0.0, transition: transition },
-        "animate-0/3": { pathLength: 0.0, transition: transition },
-        "animate-0/4": { pathLength: 0.0, stroke: "#fff", transition: transition },
-        "animate-1/2": { pathLength: 0.5, transition: transition },
-        "animate-1/3": { pathLength: 0.3333, transition: transition },
-        "animate-1/4": { pathLength: 0.25, stroke: "#000", transition: transition },
-        "animate-2/2": { pathLength: 1.0, transition: transition },
-        "animate-2/3": { pathLength: 0.6666, transition: transition },
-        "animate-2/4": { pathLength: 0.5, stroke: "#fff", transition: transition },
-        "animate-3/3": { pathLength: 1.0, transition: transition },
-        "animate-3/4": { pathLength: 0.75, stroke: "#000", transition: transition },
-        "animate-4/4": { pathLength: 1.0, stroke: "#fff", transition: transition },
+        noFill: initial,
+        fill: animate
     };
+
     return <motion.button
         className={`w-full h-full flex z-20`}
         // initial={{ opacity: 0, scale: 0 }}
@@ -71,31 +77,100 @@ export default function PlayerPiece(props: PlayerPieceProps) {
             }
             {(playerState.state === "default" || playerState.state === "start") &&
                 <div className={`h-full aspect-square p-4 rounded-full flex flex-col ${className}`}>
-                    <motion.svg xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        width={24}
-                        height={24}
-                        stroke="#fff"
-                        className="h-full w-full p-1 fill-none"
+                    {4 === playerState.fullSteps && <svg xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 26 26"
+                        width={25}
+                        height={25}
+                        className={`h-full w-full p-1 fill-none stroke-white ${playerState.steps === 0 && "animate-wiggle" || ""}`}
                         aria-hidden="true"
-                        layout
-                        layoutId={"player-path-" + className}
-                        animate={`animate-${playerState.fullSteps - playerState.steps}/${playerState.fullSteps}`}
-                        variants={variants}
+                    // animate={`animate-${playerState.fullSteps - playerState.steps}/${playerState.fullSteps}`}
                     >
-                        <path d="M12 2A10 10 0 0122 12 10 10 0 0112 22 10 10 0 012 12 10 10 0 0112 2"></path>
-
-                        {/* <motion.circle
-                            layout
-                            layoutId={"player-path-" + className}
-                            cx="12"
-                            cy="12"
-                            r="10"
+                        <motion.path
+                            initial={initial}
+                            animate={(playerState.fullSteps - playerState.steps) > 0 ? "fill" : "noFill"}
                             variants={variants}
-                        /> */}
+                            d="M14 2A10 10 0 0124 12H14Z" />
+                        <motion.path
+                            initial={initial}
+                            animate={(playerState.fullSteps - playerState.steps) > 1 ? "fill" : "noFill"}
+                            variants={variants}
+                            d="M24 14A10 10 0 0114 24V14Z" />
+                        <motion.path
+                            initial={initial}
+                            animate={(playerState.fullSteps - playerState.steps) > 2 ? "fill" : "noFill"}
+                            variants={variants}
+                            d="M12 24A10 10 0 012 14H12Z" />
+                        <motion.path
+                            initial={initial}
+                            animate={(playerState.fullSteps - playerState.steps) > 3 ? "fill" : "noFill"}
+                            variants={variants}
+                            d="M2 12A10 10 0 0112 2V12Z" />
 
-                    </motion.svg>
-                    {/* <span className="font-black text-2xl m-auto">{playerState.steps}/{playerState.fullSteps}</span> */}
+
+                    </svg>}
+                    {3 === playerState.fullSteps &&
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            viewBox="1 1 24 24"
+                            width={25}
+                            height={25}
+                            className={`h-full w-full p-1 fill-none stroke-white ${playerState.steps === 0 && "animate-wiggle" || ""}`}
+                            aria-hidden="true"
+                        // animate={`animate-${playerState.fullSteps - playerState.steps}/${playerState.fullSteps}`}
+                        >
+                            <motion.path
+                                initial={initial}
+                                animate={3 === playerState.fullSteps && (playerState.fullSteps - playerState.steps) > 0 ? "fill" : "noFill"}
+                                variants={variants}
+                                d="M14 2A10 10 0 0122.66 17L14 12Z" />
+                            <motion.path
+                                initial={initial}
+                                animate={3 === playerState.fullSteps && (playerState.fullSteps - playerState.steps) > 1 ? "fill" : "noFill"}
+                                variants={variants}
+                                d="M21.66 19A10 10 0 014.34 19L13 14Z" />
+                            <motion.path
+                                initial={initial}
+                                animate={3 === playerState.fullSteps && (playerState.fullSteps - playerState.steps) > 2 ? "fill" : "noFill"}
+                                variants={variants}
+                                d="M3.34 17A10 10 0 0112 2L12 12Z" />
+                        </svg>
+                    }
+                    {2 === playerState.fullSteps && <svg xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 26 26"
+                        width={25}
+                        height={25}
+                        className={`h-full w-full p-1 fill-none stroke-white ${playerState.steps === 0 && "animate-wiggle" || ""}`}
+                        aria-hidden="true"
+                    // animate={`animate-${playerState.fullSteps - playerState.steps}/${playerState.fullSteps}`}
+                    >
+                        <motion.path
+                            initial={initial}
+                            animate={(playerState.fullSteps - playerState.steps) > 0 ? "fill" : "noFill"}
+                            variants={variants}
+                            d="M14 3A10 10 0 0114 23Z" />
+                        <motion.path
+                            initial={initial}
+                            animate={(playerState.fullSteps - playerState.steps) > 1 ? "fill" : "noFill"}
+                            variants={variants}
+                            d="M12 23A10 10 0 0112 3Z" />
+
+
+
+                    </svg>}
+                    {1 === playerState.fullSteps && <svg xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 26 26"
+                        width={25}
+                        height={25}
+                        className={`h-full w-full p-1 fill-none stroke-white ${playerState.steps === 0 && "animate-wiggle" || ""}`}
+                        aria-hidden="true"
+                    // animate={`animate-${playerState.fullSteps - playerState.steps}/${playerState.fullSteps}`}
+                    >
+                        <motion.path
+                            initial={initial}
+                            animate={(playerState.fullSteps - playerState.steps) > 0 ? "fill" : "noFill"}
+                            variants={variants}
+                            d="M13 3A10 10 0 0113 23 10 10 0 0113 3Z" />
+
+                    </svg>}
                 </div>
             }
         </div>

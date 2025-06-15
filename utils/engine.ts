@@ -16,6 +16,7 @@ export interface PlayerState {
     currentPosition: number;
     displayedPosition: number;
     steps: number;
+    fullSteps: number;
     actions: PlayerAction[];
 
 }
@@ -89,6 +90,7 @@ export function initialiseGameState(turn: Player): GameState {
             displayedPosition: player1StartingPos,
             currentPosition: player1StartingPos,
             steps: 4,
+            fullSteps: 4,
             state: "start",
             actions: []
         },
@@ -97,6 +99,7 @@ export function initialiseGameState(turn: Player): GameState {
             displayedPosition: player2StartingPos,
             currentPosition: player2StartingPos,
             steps: 4,
+            fullSteps: 4,
             state: "start",
             actions: []
         },
@@ -157,6 +160,7 @@ export function updateBoard(current: GameState, action: PlayerAction): GameState
                         state: isGameEnd ? "winner" : "default",
                         currentPosition: currentPlayerState.displayedPosition,
                         steps: current.board[currentPlayerState.displayedPosition].number,
+                        fullSteps: current.board[currentPlayerState.displayedPosition].number,
                         actions: [],
                     },
                     [opponenetPlayer]: {
