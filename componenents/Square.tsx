@@ -1,6 +1,7 @@
 import { GameState, Player, PlayerAction } from "@/utils/engine";
 import { AnimatePresence, motion } from "motion/react";
 import PlayerPiece from "./PlayerPiece";
+import { RotateCcw } from "lucide-react";
 
 interface SquareProps {
     gameState: GameState;
@@ -25,6 +26,13 @@ export default function Square(props: SquareProps) {
 
     const isShowPath = cardState.type === "path" && !isPlayerTurn && !hasDisplayedPlayer;
     const isShowLegalMoves = action && isPlayerTurn;
+
+
+
+    const playerStateCurrentPosition = gameState.player1.currentPosition === cardNumber ? gameState.player1 :
+        (gameState.player2.currentPosition === cardNumber ? gameState.player2 : undefined);
+
+    const isShowReset = playerStateCurrentPosition?.currentPosition !== playerStateCurrentPosition?.displayedPosition;
 
     return <div
         className="aspect-square flex relative bg-gray-900">
@@ -82,6 +90,27 @@ export default function Square(props: SquareProps) {
                         updateBoard(action);
                     }}
                 >
+                </motion.button>}
+            {isShowReset &&
+                <motion.button
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0 }}
+                    transition={{
+                        duration: 0.4,
+                        scale: { type: "spring", visualDuration: 0.4, bounce: 0.5 },
+                    }}
+                    className="w-full h-full flex z-20"
+                    onClick={() => {
+                        updateBoard("reset");
+                    }}
+                >
+                    <div className="w-1/2 m-auto">
+
+                        <RotateCcw className="h-full w-full" />
+                        Reset
+                    </div>
+
                 </motion.button>}
             {hasDisplayedPlayer && <PlayerPiece playerState={playerState} isTurn={playerState.id === gameState.turn} className={`${playerState.id === 1 ? "bg-red-700" : "bg-blue-700"} z-20`} />}
         </AnimatePresence>
