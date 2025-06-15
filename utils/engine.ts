@@ -8,7 +8,7 @@ export interface CardState {
 export type Player = 1 | 2;
 
 
-type PlayerAction = "up" | "down" | "left" | "right" | "confirm" | "reset";
+export type PlayerAction = "up" | "down" | "left" | "right" | "confirm" | "reset";
 
 export interface PlayerState {
     id: Player,
@@ -128,14 +128,17 @@ export function updateBoard(current: GameState, action: PlayerAction): GameState
                     throw new Error("Card passed");
                 }
                 current.board[newPosition].type = "path";
+                const newSteps = currentPlayerState.steps - 1;
                 ret[targetPlayer] = {
                     ...currentPlayerState,
-                    steps: currentPlayerState.steps - 1,
+                    steps: newSteps,
                     displayedPosition: newPosition,
                     actions: [...currentPlayerState.actions, action]
                 };
-                if (currentPlayerState.steps > 1)
+                if (newSteps > 0)
                     ret["validMoves"] = getLegalMoves(current.board, newPosition);
+                else
+                    ret["validMoves"] = {};
                 return ret;
             }
             throw new Error("Out of steps");
@@ -178,6 +181,7 @@ export function updateBoard(current: GameState, action: PlayerAction): GameState
                     steps: currentPlayerState.state === "start" ? 4 : current.board[currentPlayerState.currentPosition].number,
                     actions: []
                 },
+                validMoves: getLegalMoves(newBoard, currentPlayerState.currentPosition)
             };
         }
     }
