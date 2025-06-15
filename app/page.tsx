@@ -246,6 +246,11 @@ export default function Game() {
                     />;
                 })}
             </div>
+
+            {gameState.phase === "end" && <div className="grid min-w-48 text-center landscape:my-auto gap-2 p-4">
+                <div>You {playerNumber === 1 && gameState.player1.state === "winner" ? "win" : "lose"}!</div>
+                <button className="ring ring-white">Play again!</button>
+            </div>}
         </div>}
     </div>;
 

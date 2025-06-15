@@ -44,10 +44,10 @@ export default function PlayerPiece(props: PlayerPieceProps) {
             }}
         >
             {playerState.state === "winner" &&
-                <Crown className={`h-full w-full rounded-full ${className}`} />
+                <Crown className={`h-full w-full rounded-full p-2 ${className}`} />
             }
             {playerState.state === "loser" &&
-                <Skull className={`h-full w-full rounded-full ${className}`} />
+                <Skull className={`h-full w-full rounded-full p-2 ${className}`} />
             }
             {
                 (playerState.state === "default" || playerState.state === "start") && playerState.steps === 0 &&
