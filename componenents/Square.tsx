@@ -35,11 +35,11 @@ export default function Square(props: SquareProps) {
     const isShowReset = (playerStateCurrentPosition?.currentPosition !== playerStateCurrentPosition?.displayedPosition) && isPlayerTurn;
 
     return <div
-        className="aspect-square flex relative bg-gray-900">
+        className="aspect-square flex relative bg-gray-900 -z-50">
         <AnimatePresence>
             {/* Floating platform */}
             {isShowPlatform && <motion.div
-                className="absolute h-full w-full bg-gray-500 z-10"
+                className="absolute h-full w-full bg-gray-500 -z-40"
                 initial={{
                     opacity: 0, scale: 0
                 }}
