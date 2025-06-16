@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { addDoc, collection, doc, getDoc, onSnapshot, setDoc, Timestamp, updateDoc } from "firebase/firestore";
 import { firestore } from "@/utils/firebase";
 import Square from "@/componenents/Square";
+import { JsonAccordion, JsonValue } from "@/componenents/JsonAccordion";
 
 const servers = {
     iceServers: [
@@ -254,70 +255,74 @@ export default function Game() {
                     />;
                 })}
             </div>
-            {gameState.phase === "play" && <div className="grid min-w-48 text-center landscape:my-auto gap-2 p-4">
-
-
-
-
-
-
-
-
-                {gameState.turn === playerNumber && <>
-                    <div>It&apos;s your turn!</div>
-                    {/* <div className="flex gap-2 justify-center min-w-48">
-                        <span className="my-auto">You are </span>
-                        <span className={`my-auto flex justify-center items-center rounded-full h-6 w-6 ${playerNumber === 1 ? "bg-red-700" : "bg-blue-700"}`}></span>
-                    </div> */}
-                </>}
-                {gameState.turn === playerNumber &&
-                    ((playerNumber === 1 ? gameState.player1 : gameState.player2).steps
-                        >
-                        0
-                    ) &&
-
-                    <div className="flex gap-2 justify-center min-w-48">
-                        <span className="my-auto">Tap</span>
-                        <span className={`my-auto flex justify-center items-center rounded-full h-6 w-6 bg-gray-700`}></span>
-                        <span className="my-auto">to move</span>
-                    </div>
+            <div className="grid min-w-48 landscape:my-auto gap-2 p-4">
+                {gameState.phase === "play" &&
+                    <>
+                        {gameState.turn === playerNumber && <>
+                            <div>It&apos;s your turn!</div>
+                        </>}
+                        {gameState.turn === playerNumber &&
+                            ((playerNumber === 1 ? gameState.player1 : gameState.player2).steps
+                                >
+                                0
+                            ) &&
+                            <div className="flex gap-2 justify-center min-w-48">
+                                <span className="my-auto">Tap</span>
+                                <span className={`my-auto flex justify-center items-center rounded-full h-6 w-6 bg-gray-700`}></span>
+                                <span className="my-auto">to move</span>
+                            </div>
+                        }
+                        {gameState.turn === playerNumber &&
+                            ((playerNumber === 1 ? gameState.player1 : gameState.player2).steps
+                                <=
+                                ((playerNumber === 1 ? gameState.player1 : gameState.player2).state === "start" ? 3 : 0)
+                            ) &&
+                            <div className="flex gap-2 justify-center min-w-48">
+                                <span className="my-auto">Tap</span>
+                                <span className={`my-auto flex justify-center items-center rounded-full h-6 w-6 ${playerNumber === 1 ? "bg-red-700" : "bg-blue-700"}`}></span>
+                                <span className="my-auto">to end turn</span>
+                            </div>
+                        }
+                        {gameState.turn !== playerNumber &&
+                            <div className="flex gap-2 justify-center min-w-48">
+                                <span className="my-auto">Waiting for </span>
+                                <span className={`my-auto flex justify-center items-center rounded-full h-6 w-6 ${playerNumber !== 1 ? "bg-red-700" : "bg-blue-700"}`}></span>
+                            </div>
+                        }
+                        {pcRef.current &&
+                            <div className="text-center">Connection status: {pcRef.current?.connectionState}</div>
+                        }
+                    </>
                 }
-                {gameState.turn === playerNumber &&
-                    ((playerNumber === 1 ? gameState.player1 : gameState.player2).steps
-                        <=
-                        ((playerNumber === 1 ? gameState.player1 : gameState.player2).state === "start" ? 3 : 0)
-                    ) &&
+                {gameState.phase === "end" &&
+                    <>
+                        <div>You {(playerNumber === 1) === (gameState.player1.state === "winner") ? "win" : "lose"}!</div>
+                        <button className="ring ring-white"
+                            onClick={() => {
+                                setGameState(initialiseGameState(gameState.player1.state === "winner" ? 2 : 1));
+                            }}
+                        >Play again!</button>
+                        {pcRef.current &&
+                            <div className="text-center">Connection status: {pcRef.current?.connectionState}</div>
+                        }
+                    </>
+                }
+                <details className="w-full">
+                    <summary className="cursor-pointer text-sm font-semibold">
+                        Debug Info
+                    </summary>
+                    <pre className="bg-gray-800 text-green-400 p-4 mt-2 rounded text-xs overflow-auto max-h-64 scrollbar-hidden">
+                        <JsonAccordion data={gameState as unknown as JsonValue} label="Game State" />
+                    </pre>
+                </details>
 
-                    <div className="flex gap-2 justify-center min-w-48">
-                        <span className="my-auto">Tap</span>
-                        <span className={`my-auto flex justify-center items-center rounded-full h-6 w-6 ${playerNumber === 1 ? "bg-red-700" : "bg-blue-700"}`}></span>
-                        <span className="my-auto">to end turn</span>
-                    </div>
-                }
-                {gameState.turn !== playerNumber &&
-                    <div className="flex gap-2 justify-center min-w-48">
-                        <span className="my-auto">Waiting for </span>
-                        <span className={`my-auto flex justify-center items-center rounded-full h-6 w-6 ${playerNumber !== 1 ? "bg-red-700" : "bg-blue-700"}`}></span>
-                    </div>
-                }
-                {pcRef.current &&
-                    <div className="text-center">Connection status: {pcRef.current?.connectionState}</div>
-                }
-            </div>}
-
-            {gameState.phase === "end" && <div className="grid min-w-48 text-center landscape:my-auto gap-2 p-4">
-                <div>You {(playerNumber === 1) === (gameState.player1.state === "winner") ? "win" : "lose"}!</div>
-                <button className="ring ring-white"
-                    onClick={() => {
-                        setGameState(initialiseGameState(gameState.player1.state === "winner" ? 2 : 1));
-                    }}
-                >Play again!</button>
-                {pcRef.current &&
-                    <div className="text-center">Connection status: {pcRef.current?.connectionState}</div>
-                }
-            </div>}
+            </div>
         </div>}
+
+
     </div>;
+
+
 
 
 }
