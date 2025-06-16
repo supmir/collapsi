@@ -3,7 +3,7 @@
 import { GameState, initialiseGameState, Player, PlayerAction, updateBoard } from "@/utils/engine";
 import { Copy, CopyCheck } from "lucide-react";
 import { useRef, useState } from "react";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, setDoc, Timestamp, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, onSnapshot, setDoc, Timestamp, updateDoc } from "firebase/firestore";
 import { firestore } from "@/utils/firebase";
 import Square from "@/componenents/Square";
 
@@ -99,11 +99,11 @@ export default function Game() {
                 const answerCandidatesRef = collection(roomRef, "answerCandidates");
 
 
-                const offerSnap = await getDocs(collection(roomRef, "offerCandidates"));
-                offerSnap.forEach(doc => deleteDoc(doc.ref));
+                // const offerSnap = await getDocs(collection(roomRef, "offerCandidates"));
+                // offerSnap.forEach(doc => deleteDoc(doc.ref));
 
-                const answerSnap = await getDocs(collection(roomRef, "answerCandidates"));
-                answerSnap.forEach(doc => deleteDoc(doc.ref));
+                // const answerSnap = await getDocs(collection(roomRef, "answerCandidates"));
+                // answerSnap.forEach(doc => deleteDoc(doc.ref));
 
                 pc.onicecandidate = (e) => {
                     console.log("New Offer Ice Candidate");
