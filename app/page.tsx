@@ -307,19 +307,9 @@ export default function Game() {
                         }
                     </>
                 }
-                <details className="w-full">
-                    <summary className="cursor-pointer text-sm font-semibold">
-                        Debug Info
-                    </summary>
-                    <pre className="bg-gray-800 text-green-400 p-4 mt-2 rounded text-xs overflow-auto max-h-64 scrollbar-hidden">
-                        <JsonAccordion data={gameState as unknown as JsonValue} label="Game State" />
-                    </pre>
-                </details>
-
+                <JsonAccordion data={gameState as unknown as JsonValue} label="Debug Info" />
             </div>
         </div>}
-
-
     </div>;
 
 
