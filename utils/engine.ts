@@ -169,7 +169,7 @@ export function updateBoard(current: GameState, action: PlayerAction): GameState
                     },
                     history: [...current.history, currentPlayerState.actions],
                     phase: isGameEnd ? "end" : "play",
-                    validMoves: getLegalMoves(current.board, opponenetPlayerState.currentPosition)
+                    validMoves: getLegalMoves(newBoard, opponenetPlayerState.currentPosition)
                 };
             }
             throw new Error("Not enough steps");
