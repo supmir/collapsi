@@ -74,6 +74,7 @@ export default function Game() {
     }
 
     useEffect(() => {
+        console.log("searchParamRoomCode", searchParamRoomCode);
         if (searchParamRoomCode)
             enterRoom(searchParamRoomCode);
     }, []);
@@ -81,7 +82,7 @@ export default function Game() {
 
     async function enterRoom(roomId: string) {
 
-        setWaitingMessage("Entering the room...");
+        setWaitingMessage(`Entering room ${roomId}...`);
         setPlayerNumber(2);
         pcRef.current = new RTCPeerConnection(servers);
         const pc = pcRef.current;
@@ -99,7 +100,7 @@ export default function Game() {
             console.log(e);
         };
 
-        if (!roomIdRef.current?.value) return;
+        if (!roomId) return;
         const roomRef = doc(firestore, "rooms", roomId);
 
         const offerCandidatesRef = collection(roomRef, "offerCandidates");
@@ -144,7 +145,7 @@ export default function Game() {
                 }
             });
         });
-        setRoomId(roomIdRef.current.value);
+        setRoomId(roomId);
         gameDataChannel.onopen = () => {
             const initialGameState = initialiseGameState(1);
             setGameState(initialGameState);
