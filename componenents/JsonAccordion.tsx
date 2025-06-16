@@ -35,7 +35,7 @@ export const JsonAccordion: React.FC<JsonAccordionProps> = ({
         : Object.entries(data as JsonObject);
 
     return (
-        <details open className={`text-xs ${indent}`}>
+        <details className={`text-xs ${indent}`}>
             <summary className="cursor-pointer font-medium text-green-400">
                 {label || (isArray ? "Array" : "Object")}
             </summary>
