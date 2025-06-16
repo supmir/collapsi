@@ -108,7 +108,7 @@ export default function Game() {
                 pc.onicecandidate = (e) => {
                     console.log("New Offer Ice Candidate");
                     console.log(e.candidate?.candidate);
-                    if (e.candidate) addDoc(offerCandidatesRef, e.candidate.toJSON());
+                    if (e.candidate) addDoc(offerCandidatesRef, { ...e.candidate, ttl: Timestamp.fromDate(new Date(Date.now() + 60 * 60 * 1000)) }.toJSON());
 
                 };
 
@@ -175,8 +175,7 @@ export default function Game() {
                     pc.onicecandidate = (e) => {
                         console.log("New Answer Ice Candidate");
                         console.log(e.candidate?.candidate);
-                        if (e.candidate) addDoc(answerCandidatesRef, e.candidate.toJSON());
-
+                        if (e.candidate) addDoc(answerCandidatesRef, { ...e.candidate, ttl: Timestamp.fromDate(new Date(Date.now() + 60 * 60 * 1000)) }.toJSON());
                     };
 
                     const roomDoc = await getDoc(roomRef);
