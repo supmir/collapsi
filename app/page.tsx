@@ -2,11 +2,12 @@
 
 import { GameState, initialiseGameState, Player, PlayerAction, updateBoard } from "@/utils/engine";
 import { Copy, CopyCheck } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { addDoc, collection, doc, getDoc, onSnapshot, setDoc, Timestamp, updateDoc } from "firebase/firestore";
 import { firestore } from "@/utils/firebase";
 import Square from "@/componenents/Square";
 import { JsonAccordion, JsonValue } from "@/componenents/JsonAccordion";
+import { useSearchParams } from "next/navigation";
 
 const servers = {
     iceServers: [
@@ -47,6 +48,8 @@ const servers = {
 };
 
 export default function Game() {
+    const searchParams = useSearchParams();
+    const searchParamRoomCode = searchParams.get("code");
     const pcRef = useRef<RTCPeerConnection | null>(null);
     const gameDataChannelRef = useRef<RTCDataChannel | null>(null);
     const roomIdRef = useRef<HTMLInputElement | null>(null);
@@ -68,6 +71,88 @@ export default function Game() {
         gameDataChannelRef.current.send(
             JSON.stringify(newGameState)
         );
+    }
+
+    useEffect(() => {
+        if (searchParamRoomCode)
+            enterRoom(searchParamRoomCode);
+    }, []);
+
+
+    async function enterRoom(roomId: string) {
+
+        setWaitingMessage("Entering the room...");
+        setPlayerNumber(2);
+        pcRef.current = new RTCPeerConnection(servers);
+        const pc = pcRef.current;
+        pc.ondatachannel = (e) => {
+            e.channel.onmessage = (e) => {
+                console.log(e);
+                setGameState(JSON.parse(e.data));
+            };
+        };
+        gameDataChannelRef.current = pc.createDataChannel("game");
+        const gameDataChannel = gameDataChannelRef.current;
+
+        gameDataChannel.onmessage = (e) => {
+            console.log("Game Data Channel On Message");
+            console.log(e);
+        };
+
+        if (!roomIdRef.current?.value) return;
+        const roomRef = doc(firestore, "rooms", roomId);
+
+        const offerCandidatesRef = collection(roomRef, "offerCandidates");
+        const answerCandidatesRef = collection(roomRef, "answerCandidates");
+
+        pc.onicecandidate = (e) => {
+            console.log("New Answer Ice Candidate");
+            console.log(e.candidate?.candidate);
+            if (e.candidate) addDoc(answerCandidatesRef, { ...(e.candidate.toJSON()), ttl: Timestamp.fromDate(new Date(Date.now() + 60 * 60 * 1000)) });
+        };
+
+        const roomDoc = await getDoc(roomRef);
+
+        if (!roomDoc.exists()) {
+            setWaitingMessage("Meeting room not found.");
+            return;
+        }
+
+        const data = roomDoc.data();
+
+        const offerDescription = data.offer;
+        await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+
+        const answerDescription = await pc.createAnswer();
+        await pc.setLocalDescription(answerDescription);
+
+
+        const answer = {
+            type: answerDescription.type,
+            sdp: answerDescription.sdp,
+        };
+
+        await updateDoc(roomRef, { answer });
+
+
+
+        onSnapshot(offerCandidatesRef, (snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added') {
+                    const candidate = new RTCIceCandidate(change.doc.data());
+                    pc.addIceCandidate(candidate);
+                }
+            });
+        });
+        setRoomId(roomIdRef.current.value);
+        gameDataChannel.onopen = () => {
+            const initialGameState = initialiseGameState(1);
+            setGameState(initialGameState);
+            console.log("join room", gameState);
+            gameDataChannel.send(
+                JSON.stringify(initialGameState)
+            );
+        };
     }
 
     return roomId === "" ? <div className="h-screen w-screen flex p-2">
@@ -149,78 +234,8 @@ export default function Game() {
             <div>{waitingMessage}</div>
             <button className="ring ring-white p-2"
                 onClick={async () => {
-                    setWaitingMessage("Entering the room...");
-                    setPlayerNumber(2);
-                    pcRef.current = new RTCPeerConnection(servers);
-                    const pc = pcRef.current;
-                    pc.ondatachannel = (e) => {
-                        e.channel.onmessage = (e) => {
-                            console.log(e);
-                            setGameState(JSON.parse(e.data));
-                        };
-                    };
-                    gameDataChannelRef.current = pc.createDataChannel("game");
-                    const gameDataChannel = gameDataChannelRef.current;
-
-                    gameDataChannel.onmessage = (e) => {
-                        console.log("Game Data Channel On Message");
-                        console.log(e);
-                    };
-
-                    if (!roomIdRef.current?.value) return;
-                    const roomRef = doc(firestore, "rooms", roomIdRef.current.value.toUpperCase());
-
-                    const offerCandidatesRef = collection(roomRef, "offerCandidates");
-                    const answerCandidatesRef = collection(roomRef, "answerCandidates");
-
-                    pc.onicecandidate = (e) => {
-                        console.log("New Answer Ice Candidate");
-                        console.log(e.candidate?.candidate);
-                        if (e.candidate) addDoc(answerCandidatesRef, { ...(e.candidate.toJSON()), ttl: Timestamp.fromDate(new Date(Date.now() + 60 * 60 * 1000)) });
-                    };
-
-                    const roomDoc = await getDoc(roomRef);
-
-                    if (!roomDoc.exists()) {
-                        setWaitingMessage("Meeting room not found.");
-                        return;
-                    }
-
-                    const data = roomDoc.data();
-
-                    const offerDescription = data.offer;
-                    await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
-
-                    const answerDescription = await pc.createAnswer();
-                    await pc.setLocalDescription(answerDescription);
-
-
-                    const answer = {
-                        type: answerDescription.type,
-                        sdp: answerDescription.sdp,
-                    };
-
-                    await updateDoc(roomRef, { answer });
-
-
-
-                    onSnapshot(offerCandidatesRef, (snapshot) => {
-                        snapshot.docChanges().forEach((change) => {
-                            if (change.type === 'added') {
-                                const candidate = new RTCIceCandidate(change.doc.data());
-                                pc.addIceCandidate(candidate);
-                            }
-                        });
-                    });
-                    setRoomId(roomIdRef.current.value);
-                    gameDataChannel.onopen = () => {
-                        const initialGameState = initialiseGameState(1);
-                        setGameState(initialGameState);
-                        console.log("join room", gameState);
-                        gameDataChannel.send(
-                            JSON.stringify(initialGameState)
-                        );
-                    };
+                    if (roomIdRef.current)
+                        enterRoom(roomIdRef.current.value.toUpperCase());
                 }}
             >Join room</button>
 
@@ -235,7 +250,7 @@ export default function Game() {
                     <button
                         className="my-auto ring ring-white p-1 h-6 aspect-square"
                         onClick={() => {
-                            navigator.clipboard.writeText(roomId);
+                            navigator.clipboard.writeText(`https://collapsi.amiriskandar.com/?code=${roomId}`);
                             setIsCopied(true);
                             setTimeout(() => { setIsCopied(false); }, 3000);
                         }}>
