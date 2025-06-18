@@ -2,7 +2,7 @@
 
 import { GameState, initialiseGameState, Player, PlayerAction, updateBoard } from "@/utils/engine";
 import { Copy, CopyCheck } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { RefObject, Suspense, useEffect, useRef, useState } from "react";
 import { addDoc, collection, doc, getDoc, onSnapshot, setDoc, Timestamp, updateDoc } from "firebase/firestore";
 import { firestore } from "@/utils/firebase";
 import Square from "@/componenents/Square";
@@ -47,9 +47,27 @@ const servers = {
     iceCandidatePoolSize: 10,
 };
 
-export default function Game() {
+
+interface RoomCodeInputProps {
+    roomIdRef: RefObject<HTMLInputElement | null>;
+    enterRoom: (roomCode: string) => void;
+}
+function RoomCodeInput(props: RoomCodeInputProps) {
+    const { roomIdRef, enterRoom } = props;
     const searchParams = useSearchParams();
     const searchParamRoomCode = searchParams.get("code");
+
+    useEffect(() => {
+        console.log("searchParamRoomCode", searchParamRoomCode);
+        if (searchParamRoomCode)
+            enterRoom(searchParamRoomCode);
+    }, []);
+
+
+    return <input type="text" className="ring ring-white p-2" ref={roomIdRef} defaultValue={searchParamRoomCode || ""} />;
+}
+
+export default function Game() {
     const pcRef = useRef<RTCPeerConnection | null>(null);
     const gameDataChannelRef = useRef<RTCDataChannel | null>(null);
     const roomIdRef = useRef<HTMLInputElement | null>(null);
@@ -73,11 +91,6 @@ export default function Game() {
         );
     }
 
-    useEffect(() => {
-        console.log("searchParamRoomCode", searchParamRoomCode);
-        if (searchParamRoomCode)
-            enterRoom(searchParamRoomCode);
-    }, []);
 
 
     async function enterRoom(roomId: string) {
@@ -231,7 +244,9 @@ export default function Game() {
             }}>Open Room</button>
 
             <div className="w-full border my-4 border-neutral-400"></div>
-            <input type="text" className="ring ring-white p-2" ref={roomIdRef} />
+            <Suspense>
+                <RoomCodeInput roomIdRef={roomIdRef} enterRoom={enterRoom} />
+            </Suspense>
             <div>{waitingMessage}</div>
             <button className="ring ring-white p-2"
                 onClick={async () => {
